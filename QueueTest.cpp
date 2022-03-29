@@ -1,14 +1,16 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <algorithm>
+#include <numeric>
 
 #include "lib/AsynQueue.h"
 
-
+template<typename T>
 class Producer
 {
   public:
-    Producer(AsyncQueue<int>& p_queue) : queue_(p_queue) {}
+    Producer(AsyncQueue<T>& p_queue) : queue_(p_queue) {}
 
     void Run()
     {
@@ -19,19 +21,20 @@ class Producer
         while(i < 100)
         {
           queue_.Enqueue(i++);
-          std::this_thread::sleep_for(500ms);
+          //std::this_thread::sleep_for(10ms);
         }
         std::cout << "Done sending data" << std::endl;
       }
     }
   private:
-    AsyncQueue<int>& queue_;
+    AsyncQueue<T>& queue_;
 };
 
+template<typename T>
 class Consumer
 {
   public:
-    Consumer(AsyncQueue<int>& p_queue) : queue_(p_queue) {}
+    Consumer(AsyncQueue<T>& p_queue) : queue_(p_queue) {}
 
     void Run()
     {
@@ -41,21 +44,21 @@ class Consumer
         std::cout << "Recieved data with size=" << data.size() << std::endl;
         for (const auto ele : data)
           std::cout << ele << ", ";
-        std::cout << std::endl;
+        std::cout << "Total=" << std::accumulate(data.begin(), data.end(), 0) << std::endl;
       }
     }
   private:
-    AsyncQueue<int>& queue_;
+    AsyncQueue<T>& queue_;
 };
 
 
 int main()
 {
   AsyncQueue<int> q;
-  Producer p(q);
-  Consumer c(q);
-  std::thread producer_thread(&Producer::Run, &p);
-  std::thread consumer_thread(&Consumer::Run, &c);
+  Producer<int> p(q);
+  Consumer<int> c(q);
+  std::thread producer_thread(&Producer<int>::Run, &p);
+  std::thread consumer_thread(&Consumer<int>::Run, &c);
 
   producer_thread.join();
   producer_thread.join();
