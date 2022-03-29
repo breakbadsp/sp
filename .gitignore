@@ -1,3 +1,4 @@
 *.vscode/*
 .vscode
 a.out
+*.gch
