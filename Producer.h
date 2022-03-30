@@ -19,7 +19,8 @@ class Producer
         using namespace std::chrono_literals;
         while(i < 100)
         {
-          queue_.EnqueueBulk(i++);
+          //queue_.EnqueueBulk(i++);
+          queue_.BlockingEnqueueBulk(i++);
           //std::this_thread::sleep_for(100ms);
         }
         //std::cout << "Done sending data." << std::endl;
