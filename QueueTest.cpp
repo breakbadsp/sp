@@ -1,11 +1,17 @@
 #include "Producer.h"
 #include "Consumer.h"
 
-int main()
+int main(int argc, char** argv)
 {
-  AsyncQueue<int> q;
+  if(argc <= 1)
+  {
+    std::cout << "Please enter consumer bulk read count " << std::endl;
+    return 0;
+  }
+  const auto count = atoi(argv[1]);
+  AsyncQueue<int> q(count+10, count);
   Producer<int> p(q);
-  Consumer<int> c(q);
+  Consumer<int> c(q, atoi(argv[1]));
   std::thread producer_thread(&Producer<int>::Run, &p);
   std::thread consumer_thread(&Consumer<int>::Run, &c);
 

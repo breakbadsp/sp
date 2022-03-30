@@ -15,14 +15,14 @@ class Producer
     {
       while(1)
       {
-        int i = 0;
+        T i = 0;
         using namespace std::chrono_literals;
         while(i < 100)
         {
-          queue_.Enqueue(i++);
-          std::this_thread::sleep_for(100ms);
+          queue_.EnqueueBulk(i++);
+          //std::this_thread::sleep_for(100ms);
         }
-        std::cout << "Done sending data" << std::endl;
+        //std::cout << "Done sending data." << std::endl;
       }
     }
   private:
