@@ -1,9 +1,10 @@
-CXX = g++-11
+#CXX = g++-11
 #CXX = g++
+CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Wall -std=c++20
+CXXFLAGS = -g -O2 -Wall -std=c++2a
 TARGET = exe
-OUTDIR = output
+OUTDIR = ../output
 
 .PHONY: default all clean
 
