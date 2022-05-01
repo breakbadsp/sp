@@ -5,6 +5,7 @@
 
 #include "AsynQueue.h"
 
+namespace sp {
 template<typename T>
 class Producer
 {
@@ -29,3 +30,4 @@ class Producer
   private:
     AsyncQueue<T>& queue_;
 };
+} //sp

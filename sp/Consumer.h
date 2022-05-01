@@ -5,6 +5,8 @@
 
 #include "AsynQueue.h"
 
+namespace sp{
+
 template<typename T>
 class Consumer
 {
@@ -45,4 +47,4 @@ class Consumer
   private:
     AsyncQueue<T>& queue_;
 };
-
+} //sp

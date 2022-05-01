@@ -6,6 +6,7 @@
 #include <atomic>
 #include <condition_variable>
 
+namespace sp {
 template<typename T>
 class AsyncQueue
 {
@@ -100,3 +101,4 @@ class AsyncQueue
     std::condition_variable cv_;
     std::atomic<bool> ready_  {true};
 };
+}//sp
