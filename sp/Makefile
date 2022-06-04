@@ -1,9 +1,10 @@
-#CXX = g++-11
+#Set CXX as a env variable
+CXX = g++-11
 #CXX = g++
-CXX = clang++
+#CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Wall -std=c++2a
-TARGET = exe
+CXXFLAGS = -g -O2 -Wall -std=c++23
+TARGET = splib_exe
 OUTDIR = ../output
 
 .PHONY: default all clean
