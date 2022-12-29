@@ -1,6 +1,7 @@
-class MyLinkedList {
+namespace sp {
+class list {
 public:
-    
+    ///TODO::Delete all the commented code once this container is matured
     int get(int index) {
         if(head_ == nullptr) 
             return -1;
@@ -20,7 +21,7 @@ public:
         return itr->value_;
     }
     
-    void addAtHead(int val) {
+    void push_front(int val) {
         if(head_ == nullptr){
             //std::cout << "After adding " << val <<" at head, NEW \n";
             head_ = std::make_unique<Node>(val);
@@ -33,9 +34,9 @@ public:
         //Print();
     }
     
-    void addAtTail(int val) {
+    void push_back(int val) {
         if(head_ == nullptr) 
-            return addAtHead(val);
+            return push_front(val);
         
         auto* itr = head_.get();
         while(itr->next_ != nullptr){
@@ -47,11 +48,11 @@ public:
         //Print();
     }
     
-    void addAtIndex(int index, int val) {
+    void insert_at(int index, int val) {
         //std::cout << "before adding " << val << " at " << index << "\n";
         //Print();
         if(index == 0) 
-            return addAtHead(val);
+            return push_front(val);
         
         if(head_ == nullptr){
             //std::cout << "Empty list and add at index = " << index << "  > 0\n";
@@ -59,10 +60,10 @@ public:
         }
             
         Node* itr = head_.get();
-        Node* prev = head_.get();
+        //Node* prev = head_.get();
         int i = 1;
         for(; itr->next_ != nullptr &&  i < index; ++i){
-            prev = itr;
+            //prev = itr;
             itr = itr->next_.get();
         }
         
@@ -88,7 +89,7 @@ public:
         //Print();
     }
     
-    void deleteAtIndex(int index) {
+    void delete_at(int index) {
         if(head_ == nullptr) 
             return;
         
@@ -147,7 +148,6 @@ public:
     }
     
     void Print() const{
-        return;
         auto* itr = head_.get();
         while(itr != nullptr){
             std::cout << itr->value_ << ", ";
@@ -171,13 +171,14 @@ private:
     
     std::unique_ptr<Node> head_;
 };
+} //namespace sp
 
 /**
  * Your MyLinkedList object will be instantiated and called as such:
  * MyLinkedList* obj = new MyLinkedList();
  * int param_1 = obj->get(index);
- * obj->addAtHead(val);
- * obj->addAtTail(val);
- * obj->addAtIndex(index,val);
- * obj->deleteAtIndex(index);
+ * obj->push_front(val);
+ * obj->push_back(val);
+ * obj->insert_at(index,val);
+ * obj->delete_at(index);
  */
