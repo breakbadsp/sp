@@ -21,7 +21,7 @@ CXXFLAGS += -Wall \
 	    -Wextra \
 	    -Werror
 
-TARGET = splib_exe
+TARGET = splib.a
 OUTDIR = ../output
 
 .PHONY: default all clean
@@ -38,7 +38,7 @@ $(OUTDIR)/%.o:	%.cpp $(HEADERS)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET):	$(OBJECTS)
-	$(CXX) $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
+	$(CXX) -c $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
 
 clean:
 	rm $(OBJECTS)
