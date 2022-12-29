@@ -1,3 +1,5 @@
+#include "owning_ptr.hpp"
+
 namespace sp {
 class list {
 public:
@@ -7,7 +9,7 @@ public:
             return -1;
     
         if(index == 0) 
-            return head_->value_;
+            return head_.get()->value_; //FIXME::Use arrow operator on sp::owning_ptr
 
         auto* itr = head_.get();
         int i = 0;
@@ -24,12 +26,12 @@ public:
     void push_front(int val) {
         if(head_ == nullptr){
             //std::cout << "After adding " << val <<" at head, NEW \n";
-            head_ = std::make_unique<Node>(val);
+            head_ = sp::make_owning<Node>(val);
             //Print();
             return;
         }
         
-        head_ = std::make_unique<Node>(val, std::move(head_));
+        head_ = sp::make_owning<Node>(val, std::move(head_));
         //std::cout << "After adding " << val <<" at Head \n";
         //Print();
     }
@@ -42,7 +44,7 @@ public:
         while(itr->next_ != nullptr){
             itr = itr->next_.get();
         }
-        itr->next_ = std::make_unique<Node>(val);
+        itr->next_ = sp::make_owning<Node>(val);
         
         ///std::cout << "After adding " << val <<" at Tail \n";
         //Print();
@@ -79,12 +81,12 @@ public:
         
         //Tail
         if(itr->next_ == nullptr){
-            itr->next_ = std::make_unique<Node>(val);
+            itr->next_ = sp::make_owning<Node>(val);
             //std::cout << "After adding " << val << " at " << index << "\n";
             return;
         }
         
-        itr->next_ = std::make_unique<Node>(val, std::move(itr->next_));
+        itr->next_ = sp::make_owning<Node>(val, std::move(itr->next_));
         //std::cout << "After adding " << val << " at " << index << "\n";
         //Print();
     }
@@ -94,7 +96,7 @@ public:
             return;
         
         if(index == 0){
-            if(head_->next_ == nullptr){
+            if(head_.get()->next_ == nullptr){
                 //std::cout << "deleting only first element\n";
                 head_.reset(nullptr);
                 return;
@@ -102,16 +104,16 @@ public:
             //auto temp = std::move(head_->next_);
             //head_.reset(nullptr);
             //head_ = std::move(temp);
-            head_ = std::move(head_->next_);
+            head_ = std::move(head_.get()->next_);
             return;
         }
         
-        if(index == 1 && head_->next_ == nullptr){
+        if(index == 1 && head_.get()->next_ == nullptr){
             //std::cout << "Nothing to delete at " << index << "\n";
             return;
         }
         
-        Node* itr = head_->next_.get();
+        Node* itr = head_.get()->next_.get();
         Node* prev = head_.get();
         int i = 1;
         for( ;i < index && itr->next_ != nullptr; ++i){
@@ -160,25 +162,15 @@ public:
 private:
     struct Node{
         Node(int val) : value_(val) {}
-        Node(int val, std::unique_ptr<Node> next) :
+        Node(int val, sp::owning_ptr<Node> next) :
             value_(val),
             next_(std::move(next))
         {}
         
         int value_;
-        std::unique_ptr<Node> next_; 
+        sp::owning_ptr<Node> next_;
     };
     
-    std::unique_ptr<Node> head_;
+    sp::owning_ptr<Node> head_;
 };
 } //namespace sp
-
-/**
- * Your MyLinkedList object will be instantiated and called as such:
- * MyLinkedList* obj = new MyLinkedList();
- * int param_1 = obj->get(index);
- * obj->push_front(val);
- * obj->push_back(val);
- * obj->insert_at(index,val);
- * obj->delete_at(index);
- */
