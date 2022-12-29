@@ -1,14 +1,8 @@
-#include "Producer.h"
-#include "Consumer.h"
+#include "Producer.hpp"
+#include "Consumer.hpp"
 
-int main(int argc, char** argv)
+void TestQueue(int count)
 {
-  if(argc <= 1)
-  {
-    std::cout << "Please enter consumer bulk read count " << std::endl;
-    return 0;
-  }
-  const auto count = atoi(argv[1]);
   sp::AsyncQueue<int> q(count+10, count);
   sp::Producer<int> p(q);
   sp::Consumer<int> c(q);

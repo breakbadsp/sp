@@ -4,7 +4,7 @@
 
 namespace sp{
 template<typename T>
-class Vector
+class vector
 {
   public:
 
@@ -43,14 +43,14 @@ class Vector
       return buffer_[size_ - 1];
     }
 
-    Vector() : 
+    vector() : 
      size_(0)
      ,capacity_(1)
     {
       buffer_  = new T[capacity_];
     }
 
-    Vector(const T& p_data) :
+    vector(const T& p_data) :
      size_(0)
      ,capacity_(1)
     {
@@ -58,7 +58,7 @@ class Vector
       buffer_[size_++] = p_data;
     }
 
-    Vector(const Vector<T>& p_other) : 
+    vector(const vector<T>& p_other) : 
        size_(p_other.size_)
       ,capacity_(p_other.capacity_)
     {
@@ -69,7 +69,7 @@ class Vector
       }
     }
 
-    Vector(Vector<T>&& p_other) :
+    vector(vector<T>&& p_other) :
        size_(std::move(p_other.size_))
       ,capacity_(std::move(p_other.capacity_))
     {
@@ -80,7 +80,7 @@ class Vector
       } 
     }
 
-    ~Vector()
+    ~vector()
     {
       Clear();
     }
@@ -118,5 +118,5 @@ class Vector
     //TODO:: convert this into a smart pointer, preferably uniqueu pointer
     T* buffer_;
 
-};//Vector class
+};//vector class
 };//sp namespace
