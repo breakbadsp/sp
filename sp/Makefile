@@ -1,9 +1,26 @@
 #Set CXX as a env variable
 CXX = g++-11
 #CXX = g++
+#CXX = clang-cpp-14
 #CXX = clang++
+
+
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Wall -std=c++23
+
+#C++ version
+CXXFLAGS = -std=c++2b
+
+#Optimization
+CXXFLAGS += -O2
+
+#Debugging
+CXXFLAGS += -g
+
+#Warnings
+CXXFLAGS += -Wall \
+	    -Wextra \
+	    -Werror
+
 TARGET = splib_exe
 OUTDIR = ../output
 
