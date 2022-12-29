@@ -11,5 +11,4 @@ void TestQueue(int count)
 
   producer_thread.join();
   consumer_thread.join();
-  return 0;
 }
