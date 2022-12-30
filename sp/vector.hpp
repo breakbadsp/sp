@@ -7,6 +7,10 @@ template<typename T>
 class vector
 {
   public:
+    ~vector()
+    {
+      Clear();
+    }
 
     //getters
     size_t size() { return size_; }
@@ -80,19 +84,11 @@ class vector
       } 
     }
 
-    ~vector()
-    {
-      Clear();
-    }
-
   private:
     void Clear()
     {
-      for(size_t i = capacity_; i < capacity_; ++i)
-      {
-        delete [] buffer_;
-        buffer_ = nullptr;
-      }
+      delete [] buffer_;
+      buffer_ = nullptr;
       size_ = 0;
       capacity_ = 0;
     }
@@ -109,6 +105,7 @@ class vector
       {
         buffer_[i] = old_buffer[i];
       }
+      delete [] old_buffer;
     }
 
   private:
