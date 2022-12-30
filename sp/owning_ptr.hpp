@@ -3,10 +3,17 @@
 namespace sp{
 
 template<typename T>
-class owning_ptr {
+class owning_ptr final {
 
   public:
     owning_ptr() = default;
+
+    ~owning_ptr() {
+      delete raw_ptr_;
+      raw_ptr_ = nullptr;
+    }
+    
+    
     owning_ptr(T* p_raw) : raw_ptr_(p_raw) {}
     
     //Delete copy
@@ -71,6 +78,7 @@ sp::owning_ptr<T> make_owning(U&& p_u) {
   return sp::owning_ptr(new T(std::forward<U>(p_u)));
 }
 
+///FIXME::ASAN Leak report
 template<typename T, typename... Args>
 sp::owning_ptr<T> make_owning(Args&&... p_args) {
   return sp::owning_ptr( new T(std::forward<Args>(p_args)...) );  
