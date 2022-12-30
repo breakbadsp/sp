@@ -161,14 +161,16 @@ public:
     
 private:
     struct Node{
+        Node() = default;
+
         Node(int val) : value_(val) {}
         Node(int val, sp::owning_ptr<Node> next) :
             value_(val),
             next_(std::move(next))
         {}
         
-        int value_;
-        sp::owning_ptr<Node> next_;
+        int value_ {0};
+        sp::owning_ptr<Node> next_ {nullptr};
     };
     
     sp::owning_ptr<Node> head_;
