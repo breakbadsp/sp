@@ -3,7 +3,38 @@ CXX = g++-11
 #CXX = g++
 #CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Wall -Wextra -Werror -std=c++23 -I../sp/
+CXXFLAGS = -g -O2 -Werror -std=c++23 -I../sp/
+
+#Warning flags 
+# Pending Winfinite-recursion, 
+CXXFLAGS += -Wall \
+			-Wextra \
+			-Wnull-dereference \
+			-Wshift-overflow \
+			-Wno-div-by-zero \
+			-Wfloat-equal \
+			-Wshadow \
+			-Wfree-nonheap-object \
+
+
+#Instrumentation-Options flags
+# Pending -fsanitize=shadow-call-stack, -fstack-check
+CXXFLAGS += -fsanitize=address \
+			-fsanitize=undefined \
+			-fsanitize=leak \
+			-fsanitize-address-use-after-scope \
+			-fsanitize-recover=all \
+			-fno-omit-frame-pointer \
+			-fstack-protector-all \
+
+LDDFLAGS = 	-fsanitize=address \
+		   	-fsanitize=undefined \
+		   	-fsanitize=leak \
+		   	-fsanitize-address-use-after-scope \
+		   	-fsanitize-recover=all \
+			-fno-omit-frame-pointer \
+		   
+
 TARGET = unit_test
 OUTDIR = ../output
 
@@ -22,7 +53,7 @@ $(OUTDIR)/%.o:	%.cpp $(HEADERS)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET):	$(OBJECTS)
-	$(CXX) $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
+	$(CXX) $(LDDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
 
 clean:
 	rm $(OBJECTS)
