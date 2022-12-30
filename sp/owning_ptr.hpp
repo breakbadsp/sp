@@ -1,4 +1,5 @@
 #include <utility>
+#include <type_traits>
 
 namespace sp{
 
@@ -9,11 +10,13 @@ class owning_ptr final {
     owning_ptr() = default;
 
     ~owning_ptr() {
-      delete raw_ptr_;
+      if(std::is_bounded_array_v<T>)
+        delete [] raw_ptr_;
+      else
+        delete raw_ptr_;
       raw_ptr_ = nullptr;
     }
-    
-    
+
     owning_ptr(T* p_raw) : raw_ptr_(p_raw) {}
     
     //Delete copy
@@ -75,16 +78,34 @@ class owning_ptr final {
     T* raw_ptr_ {nullptr};
 };
 
+template<typename T>
+  requires (!std::is_array_v<T>)
+sp::owning_ptr<T> make_owning() {
+  return sp::owning_ptr<T>(new T());
+}
+
+template<typename T>
+  requires std::is_bounded_array_v<T>
+sp::owning_ptr<T> make_owning(std::size_t p_size) {
+  return sp::owning_ptr<T>(new std::remove_extent_t<T>[p_size]);
+}
+
 template<typename T, typename U>
+  requires (!std::is_array_v<T>)
 sp::owning_ptr<T> make_owning(U&& p_u) {
-  return sp::owning_ptr(new T(std::forward<U>(p_u)));
+  return sp::owning_ptr<T>(new T(std::forward<U>(p_u)));
 }
 
 ///FIXME::ASAN Leak report
 template<typename T, typename... Args>
+   requires (!std::is_array_v<T>)
 sp::owning_ptr<T> make_owning(Args&&... p_args) {
-  return sp::owning_ptr( new T(std::forward<Args>(p_args)...) );  
+  return sp::owning_ptr<T>( new T(std::forward<Args>(p_args)...) );  
 }
+
+template<typename T, typename... Args>
+  requires std::is_bounded_array_v<T>
+sp::owning_ptr<T> make_owning(Args&&... p_args) = delete;
 
 }
 
