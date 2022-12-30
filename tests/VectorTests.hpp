@@ -11,11 +11,11 @@ void TestVectorPushBack()
   std::cout << "Pushback test\n";
   sp::vector<int> test_vec(1);
   test_vec.Print();
-  test_vec.PushBack(2);
-  test_vec.PushBack(3);
-  test_vec.PushBack(4);
+  test_vec.push_back(2);
+  test_vec.push_back(3);
+  test_vec.push_back(4);
   test_vec.Print();
-  std::cout << test_vec.Back() << '\n';
-  test_vec.PopBack();
+  std::cout << test_vec.back() << '\n';
+  test_vec.pop_back();
   test_vec.Print();
 }

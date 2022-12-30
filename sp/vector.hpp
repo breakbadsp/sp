@@ -21,7 +21,7 @@ class vector
       std::cout << std::endl;
     }
 
-    void PushBack(const T& p_data)
+    void push_back(const T& p_data)
     {
       if(size_ == capacity_)
       {
@@ -30,14 +30,14 @@ class vector
       buffer_[size_++] = p_data;
     }
 
-    void PopBack()
+    void pop_back()
     {
       if(size_ <= 0)
         return;
       --size_;
     }
 
-    const T& Back()
+    const T& back()
     {
       assert(size_ > 0);
       return buffer_[size_ - 1];
