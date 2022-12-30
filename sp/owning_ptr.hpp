@@ -47,6 +47,8 @@ class owning_ptr final {
       return *this;
     }
 
+    T operator[](size_t p_index) { return raw_ptr_[p_index]; }
+
     void reset(owning_ptr&& p_other) {
       delete raw_ptr_;
       raw_ptr_ = std::move(p_other.raw_ptr_);
