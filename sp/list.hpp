@@ -164,7 +164,7 @@ private:
         Node() = default;
 
         Node(int val) : value_(val) {}
-        Node(int val, sp::owning_ptr<Node> next) :
+        Node(int val, sp::owning_ptr<Node>&& next) :
             value_(val),
             next_(std::move(next))
         {}
