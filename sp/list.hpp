@@ -9,7 +9,7 @@ public:
             return -1;
     
         if(index == 0) 
-            return head_.get()->value_; //FIXME::Use arrow operator on sp::owning_ptr
+            return head_->value_; //FIXME::Use arrow operator on sp::owning_ptr
 
         auto* itr = head_.get();
         int i = 0;
@@ -96,7 +96,7 @@ public:
             return;
         
         if(index == 0){
-            if(head_.get()->next_ == nullptr){
+            if(head_->next_ == nullptr){
                 //std::cout << "deleting only first element\n";
                 head_.reset(nullptr);
                 return;
@@ -104,16 +104,16 @@ public:
             //auto temp = std::move(head_->next_);
             //head_.reset(nullptr);
             //head_ = std::move(temp);
-            head_ = std::move(head_.get()->next_);
+            head_ = std::move(head_->next_);
             return;
         }
         
-        if(index == 1 && head_.get()->next_ == nullptr){
+        if(index == 1 && head_->next_ == nullptr){
             //std::cout << "Nothing to delete at " << index << "\n";
             return;
         }
         
-        Node* itr = head_.get()->next_.get();
+        Node* itr = head_->next_.get();
         Node* prev = head_.get();
         int i = 1;
         for( ;i < index && itr->next_ != nullptr; ++i){

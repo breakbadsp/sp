@@ -71,8 +71,8 @@ class owning_ptr final {
     bool operator==(const owning_ptr& p_other) { return raw_ptr_ == p_other.raw_ptr_; }
     bool operator!=(const owning_ptr& p_other) { return raw_ptr_ != p_other.raw_ptr_; }
 
-    //TODO::Overload an arrow -> operator
-    //T* operator->() { return raw_ptr_; }
+    T* operator->() { return get(); }
+    T operator*() { return *get(); }
 
   private:
     T* raw_ptr_ {nullptr};
