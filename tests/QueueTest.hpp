@@ -1,3 +1,4 @@
+#pragma once
 #include "Producer.hpp"
 #include "Consumer.hpp"
 

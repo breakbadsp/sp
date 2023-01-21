@@ -1,3 +1,4 @@
+#pragma once
 #include "owning_ptr.hpp"
 
 namespace sp {
