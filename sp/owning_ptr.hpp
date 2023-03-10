@@ -11,7 +11,7 @@ class owning_ptr final {
     owning_ptr() = default;
 
     ~owning_ptr() {
-      if(std::is_bounded_array_v<T>)
+      if(std::is_array_v<T>)
         delete [] raw_ptr_;
       else
         delete raw_ptr_;
@@ -80,15 +80,9 @@ class owning_ptr final {
 };
 
 template<typename T>
-  requires (!std::is_array_v<T>)
-sp::owning_ptr<T> make_owning() {
-  return sp::owning_ptr<T>(new T());
-}
-
-template<typename T>
-  requires std::is_bounded_array_v<T>
+  requires std::is_array_v<T>
 sp::owning_ptr<T> make_owning(std::size_t p_size) {
-  return sp::owning_ptr<T>(new std::remove_extent_t<T>[p_size]);
+  return sp::owning_ptr<T>(new std::remove_extent_t<T>[p_size]());
 }
 
 template<typename T, typename U>

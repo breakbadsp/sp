@@ -2,6 +2,7 @@
 #include "VectorTests.hpp"
 #include "ListTest.hpp"
 #include "QueueTest.hpp"
+#include "test_owning_ptr.hpp"
 
 int main(int argc, char** argv)
 {
