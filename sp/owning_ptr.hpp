@@ -11,7 +11,7 @@ class owning_ptr final {
     owning_ptr() = default;
 
     ~owning_ptr() {
-      if(std::is_bounded_array_v<T>)
+      if(std::is_bounded_array_v<T> || std::is_unbounded_array_v<T>)
         delete [] raw_ptr_;
       else
         delete raw_ptr_;
