@@ -29,8 +29,8 @@ class AsyncQueue
       {
         std::unique_lock<std::mutex> ulock(queue_lock_);
         queue_.emplace_back(std::forward<T>(p_data));
-        cv_.notify_one();
       }
+      cv_.notify_one();
     }
 
     T Dequeue()
@@ -47,11 +47,9 @@ class AsyncQueue
     void EnqueueBulk(T&& p_data)
     {
       std::unique_lock<std::mutex> ulock(queue_lock_);
-      std::cout << "Enqueued " << p_data << '\n';
       queue_.emplace_back(std::forward<T>(p_data));
       if(queue_.size() >= dequeu_count_)
       {
-        std::cout << "trying to wake up consumer\n";
         cv_.notify_one();
       }
     }
@@ -59,15 +57,12 @@ class AsyncQueue
     void BlockingEnqueueBulk(T&& p_data)
     {
       std::unique_lock<std::mutex> ulock(queue_lock_);
-      std::cout << "Enqueued " << p_data << '\n';
       queue_.emplace_back(std::forward<T>(p_data));
       if(queue_.size() >= dequeu_count_)
       {
-        std::cout << "trying to wake up consumer\n";
         cv_.notify_one();
         while (!queue_.empty())
         {
-          std::cout << "Waiting for consumer to read the queue\n";
           cv_.wait(ulock);
         }
         
@@ -76,19 +71,16 @@ class AsyncQueue
 
     std::vector<T> DequeueBulk()
     {
-      std::unique_lock<std::mutex> ulock(queue_lock_);
-      while(queue_.empty() || queue_.size() < dequeu_count_)
+      std::vector<T> data_copy;
       {
-        cv_.wait(ulock);
+        std::unique_lock<std::mutex> ulock(queue_lock_);
+        while(queue_.empty() || queue_.size() < dequeu_count_)
+        {
+          cv_.wait(ulock);
+        }
+        data_copy = queue_;
+        queue_.clear();
       }
-      std::cout << "Consumer woke up.\n";
-      const auto data_copy = queue_;
-      //Remove this
-      std::cout << "Dequeued data with size =" << data_copy.size() << '\n';
-      for (const auto& ele : data_copy)
-        std::cout << ele << ", ";
-      //
-      queue_.clear();
       cv_.notify_one();
       return data_copy;
     }
