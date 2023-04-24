@@ -59,6 +59,17 @@ class owning_ptr final {
       p_other.raw_ptr_ = nullptr;
     }
 
+    void reset(T* p_raw) {
+      delete raw_ptr_;
+      raw_ptr_ = p_raw;
+      p_other.raw_ptr_ = nullptr;
+    }
+
+    void reset(decltype(nullptr)) {
+      delete raw_ptr_;
+      p_other.raw_ptr_ = nullptr;
+    }
+
     const T* get() const { return raw_ptr_; }
     T* get() { return raw_ptr_; }
 
