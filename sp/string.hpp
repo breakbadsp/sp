@@ -9,15 +9,49 @@ class string {
   public:
     string() = default;
     
-    string(char* p_c_style) {
-      const auto len = strlen(p_c_style);
-      sp::owning_ptr<char> buffer( new char[len + 1] );
-      size_ = len + 1;
-      capacity_ = len + 1;
+    explicit string(const char* p_c_style) {
+      const auto len = strlen(p_c_style); //UB if p_c_style is not null terminated
+      buffer_ =  new char[len + 1];
+      size_ = len;
+      capacity_ = len;
       strcpy(buffer_.get(), p_c_style);
     }
 
+    explicit string(decltype(nullptr)){
+      string();
+    }
 
+    explicit string(const string& p_other) {
+      string(p_other.buffer_.get());
+    }
+
+    explicit string(string&& p_other) :
+      buffer_(std::move(p_other.buffer_))
+      ,size_(std::move(p_other.size_))
+      ,capacity_(std::move(p_other.capacity_))
+    {}
+
+    string& operator=(const string& p_other) {
+      if(this == &p_other)
+        return *this;
+      
+      const auto len = strlen(p_other.buffer_.get());
+      buffer_.reset(new char[len + 1]);
+      size_ = len;
+      capacity_ = len;
+      strcpy(buffer_.get(), p_other.buffer_.get());
+      return *this;
+    }
+
+    string& operator=(string&& p_other) {
+      if(this == &p_other)
+        return *this;
+      
+      buffer_ = std::move(p_other.buffer_);
+      size_ = std::move(p_other.size_);
+      capacity_ = std::move(p_other.capacity_);
+      return *this;
+    }
 
   private:
     sp::owning_ptr<char> buffer_ {nullptr};
