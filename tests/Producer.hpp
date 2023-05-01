@@ -3,7 +3,7 @@
 #include <thread>
 #include <iostream>
 
-#include "AsynQueue.h"
+#include "AsyncQueue.h"
 
 namespace sp {
 template<typename T>
