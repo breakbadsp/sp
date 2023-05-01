@@ -70,6 +70,12 @@ class owning_ptr final {
       p_other.raw_ptr_ = nullptr;
     }
 
+    T* release() {
+      auto* temp = raw_ptr_;
+      raw_ptr_ = nullptr;
+      return temp;
+    }
+
     const T* get() const { return raw_ptr_; }
     T* get() { return raw_ptr_; }
 
@@ -86,6 +92,8 @@ class owning_ptr final {
     T* operator->() { return get(); }
     T operator*() { return *get(); }
 
+    bool operator bool() { return static_cast<bool>(raw_ptr_); }
+    
   private:
     T* raw_ptr_ {nullptr};
 };
