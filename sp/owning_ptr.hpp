@@ -62,12 +62,10 @@ class owning_ptr final {
     void reset(T* p_raw) {
       delete raw_ptr_;
       raw_ptr_ = p_raw;
-      p_other.raw_ptr_ = nullptr;
     }
 
     void reset(decltype(nullptr)) {
       delete raw_ptr_;
-      p_other.raw_ptr_ = nullptr;
     }
 
     T* release() {
@@ -92,7 +90,7 @@ class owning_ptr final {
     T* operator->() { return get(); }
     T operator*() { return *get(); }
 
-    bool operator bool() { return static_cast<bool>(raw_ptr_); }
+    explicit operator bool() { return raw_ptr_ != nullptr; }
     
   private:
     T* raw_ptr_ {nullptr};

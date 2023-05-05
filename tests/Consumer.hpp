@@ -3,7 +3,7 @@
 #include <iostream>
 #include <numeric>
 
-#include "AsynQueue.h"
+#include "AsyncQueue.h"
 
 namespace sp{
 
