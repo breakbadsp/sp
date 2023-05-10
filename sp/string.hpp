@@ -10,11 +10,7 @@ class string {
     string() = default;
     
     explicit string(const char* p_c_style) {
-      const auto len = strlen(p_c_style); //UB if p_c_style is not null terminated
-      buffer_ =  new char[len + 1];
-      size_ = len;
-      capacity_ = len;
-      strcpy(buffer_.get(), p_c_style);
+      Init(p_c_style);
     }
 
     explicit string(decltype(nullptr)){
@@ -22,7 +18,7 @@ class string {
     }
 
     explicit string(const string& p_other) {
-      string(p_other.buffer_.get());
+      Init(p_other.buffer_.get());
     }
 
     explicit string(string&& p_other) :
@@ -34,12 +30,8 @@ class string {
     string& operator=(const string& p_other) {
       if(this == &p_other)
         return *this;
-      
-      const auto len = strlen(p_other.buffer_.get());
-      buffer_.reset(new char[len + 1]);
-      size_ = len;
-      capacity_ = len;
-      strcpy(buffer_.get(), p_other.buffer_.get());
+
+      Init(p_other.buffer_.get());
       return *this;
     }
 
@@ -57,5 +49,13 @@ class string {
     sp::owning_ptr<char> buffer_ {nullptr};
     unsigned int size_ {0};
     unsigned int capacity_ {0};
+
+    void Init(const char* p_c_style) {
+      const auto len = strlen(p_c_style); //UB if p_c_style is not null terminated
+      buffer_.reset(new char[len + 1]);
+      size_ = len;
+      capacity_ = len;
+      strcpy(buffer_.get(), p_c_style);
+    }
 };
 } //sp
