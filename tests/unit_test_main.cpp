@@ -1,5 +1,6 @@
 
 #include "VectorTests.hpp"
+#include "StringTest.hpp"
 #include "ListTest.hpp"
 #include "QueueTest.hpp"
 #include "shared_ptr.hpp"
@@ -27,5 +28,6 @@ int main(int argc, char** argv)
   TestVectorPushBack();
   TestListApis();
   TestSharedPtr();
+  TestString();
   std::cout << "test are done\n";
 }
