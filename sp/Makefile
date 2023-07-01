@@ -1,5 +1,5 @@
 #Set CXX as a env variable
-CXX = g++-11
+CXX = g++-12
 #CXX = g++
 #CXX = clang-cpp-14
 #CXX = clang++
