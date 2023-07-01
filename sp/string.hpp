@@ -29,9 +29,9 @@ class string {
       ,size_(std::move(p_other.size_))
       ,capacity_(std::move(p_other.capacity_))
     {
-      p_other.buffer_ = (nullptr);
-      p_other.size_ = (0);
-      p_other.capacity_= (0);
+      p_other.buffer_ = nullptr;
+      p_other.size_ = 0;
+      p_other.capacity_= 0;
     }
 
     string& operator=(const string& p_other) {
@@ -49,6 +49,10 @@ class string {
       buffer_ = std::move(p_other.buffer_);
       size_ = std::move(p_other.size_);
       capacity_ = std::move(p_other.capacity_);
+
+      p_other.buffer_ = nullptr;
+      p_other.size_ = 0;
+      p_other.capacity_ = 0;
       return *this;
     }
 
