@@ -4,7 +4,7 @@
 void TestListApis()
 {
   std::cout << "Link List test\n";
-  sp::list obj;
+  sp::list<int> obj;
   obj.push_front(10);
   std::cout << "push_front 10 \n";
   int param_1 = obj.get(1);

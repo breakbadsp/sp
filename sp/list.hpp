@@ -2,10 +2,12 @@
 #include "owning_ptr.hpp"
 
 namespace sp {
+
+template<typename T>
 class list {
 public:
     ///TODO::Delete all the commented code once this container is matured
-    int get(int index) {
+    T get(size_t index) {
         if(head_ == nullptr) 
             return -1;
     
@@ -13,7 +15,7 @@ public:
             return head_->value_; //FIXME::Use arrow operator on sp::owning_ptr
 
         auto* itr = head_.get();
-        int i = 0;
+        size_t i = 0;
         for(;i < index && itr->next_ != nullptr; ++i){
             itr = itr->next_.get();
         }
@@ -24,7 +26,7 @@ public:
         return itr->value_;
     }
     
-    void push_front(int val) {
+    void push_front(const T& val) {
         if(head_ == nullptr){
             //std::cout << "After adding " << val <<" at head, NEW \n";
             head_ = sp::make_owning<Node>(val);
@@ -37,7 +39,7 @@ public:
         //Print();
     }
     
-    void push_back(int val) {
+    void push_back(const T& val) {
         if(head_ == nullptr) 
             return push_front(val);
         
@@ -51,7 +53,7 @@ public:
         //Print();
     }
     
-    void insert_at(int index, int val) {
+    void insert_at(size_t index, const T& val) {
         //std::cout << "before adding " << val << " at " << index << "\n";
         //Print();
         if(index == 0) 
@@ -64,7 +66,7 @@ public:
             
         Node* itr = head_.get();
         //Node* prev = head_.get();
-        int i = 1;
+        size_t i = 1;
         for(; itr->next_ != nullptr &&  i < index; ++i){
             //prev = itr;
             itr = itr->next_.get();
@@ -92,7 +94,7 @@ public:
         //Print();
     }
     
-    void delete_at(int index) {
+    void delete_at(size_t index) {
         if(head_ == nullptr) 
             return;
         
@@ -116,7 +118,7 @@ public:
         
         Node* itr = head_->next_.get();
         Node* prev = head_.get();
-        int i = 1;
+        size_t i = 1;
         for( ;i < index && itr->next_ != nullptr; ++i){
             prev = itr;
             itr = itr->next_.get();
@@ -164,13 +166,13 @@ private:
     struct Node{
         Node() = default;
 
-        Node(int val) : value_(val) {}
-        Node(int val, sp::owning_ptr<Node>&& next) :
+        Node(const T& val) : value_(val) {}
+        Node(const T& val, sp::owning_ptr<Node>&& next) :
             value_(val),
             next_(std::move(next))
         {}
         
-        int value_ {0};
+        T value_ {0};
         sp::owning_ptr<Node> next_ {nullptr};
     };
     
