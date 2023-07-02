@@ -9,7 +9,7 @@ public:
     ///TODO::Delete all the commented code once this container is matured
     T get(size_t index) {
         if(head_ == nullptr) 
-            return -1;
+            return {};
     
         if(index == 0) 
             return head_->value_; //FIXME::Use arrow operator on sp::owning_ptr
@@ -21,7 +21,7 @@ public:
         }
         
         if(itr == nullptr || i < index)
-            return -1;
+            return {};
         
         return itr->value_;
     }
@@ -155,7 +155,7 @@ public:
     void Print() const{
         auto* itr = head_.get();
         while(itr != nullptr){
-            std::cout << itr->value_ << ", ";
+            //std::cout << itr->value_ << ", ";
             itr = itr->next_.get();
         }
         std::cout << "\n";
