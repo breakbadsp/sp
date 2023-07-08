@@ -5,8 +5,7 @@
 namespace sp{
 
 template<typename T>
-class shared_ptr
-{
+class shared_ptr {
   public:
     class shared_ptr_control_block
     {
@@ -46,14 +45,22 @@ class shared_ptr
   public:
     shared_ptr()
     : raw_ptr_(nullptr)
-    , control_block_(new shared_ptr_control_block())
-    {
+    , control_block_(nullptr) {
     }
 
     shared_ptr(T* p_raw_ptr) 
     : raw_ptr_(p_raw_ptr)
-    , control_block_(new shared_ptr_control_block())
-    {
+    , control_block_(new shared_ptr_control_block()) {
+
+    }
+
+    shared_ptr& operator=(decltype(nullptr)){
+      if(control_block_ and !control_block_->DecreaseRefCount()) {
+        Clear();
+      }
+      raw_ptr_ = nullptr;
+      control_block_ = nullptr;
+      return *this;
     }
 
     ~shared_ptr() {
@@ -72,9 +79,19 @@ class shared_ptr
         control_block_->IncreaseRefCount();
     }
 
+    shared_ptr(shared_ptr&& p_other) 
+    : raw_ptr_(std::move(p_other.raw_ptr_))
+    , control_block_(std::move(p_other.control_block_))
+    {}
+
     shared_ptr& operator=(const shared_ptr& p_other) {
       if(this == &p_other)
         return *this;
+
+      if(raw_ptr_) {
+        if(control_block_ and !control_block_->DecreaseRefCount())
+          Clear();
+      }
       
       //FIXME: solve memory leak of old resources
       raw_ptr_ = p_other.raw_ptr_;
@@ -82,8 +99,52 @@ class shared_ptr
 
       if(control_block_)
         control_block_->IncreaseRefCount();
+        
       return *this;
     }
+
+    shared_ptr& operator=(shared_ptr&& p_other) {
+      if(this == &p_other)
+        return *this;
+
+      raw_ptr_ = std::move(p_other.raw_ptr_);
+      control_block_ = std::move(p_other.control_block_);
+  
+      return *this;
+    }
+    
+    shared_ptr& operator=(T* p_raw_ptr) {
+      if(raw_ptr_ == p_raw_ptr)
+        return *this;
+
+      if(raw_ptr_)
+      {
+        if(control_block_ and !control_block_->DecreaseRefCount())
+          Clear();
+      }
+      
+      raw_ptr_ = p_raw_ptr;
+      control_block_ = new shared_ptr_control_block();       
+      return *this;
+    }
+
+    const T* get() const { return raw_ptr_; }
+    T* get() { return raw_ptr_; }
+
+    //with raw
+    bool operator==(T* p_raw) { return p_raw == raw_ptr_; }
+    bool operator!=(T* p_raw) { return p_raw != raw_ptr_; }
+
+    bool operator==(std::nullptr_t p_null) { return p_null == raw_ptr_; }
+    bool operator!=(std::nullptr_t p_null) { return p_null != raw_ptr_; }
+
+    bool operator==(const shared_ptr& p_other) { return raw_ptr_ == p_other.raw_ptr_; }
+    bool operator!=(const shared_ptr& p_other) { return raw_ptr_ != p_other.raw_ptr_; }
+
+    T* operator->() { return get(); }
+    T operator*() { return *get(); }
+
+    explicit operator bool() { return raw_ptr_ != nullptr; }
 
     //Move
 
