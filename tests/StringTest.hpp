@@ -14,4 +14,10 @@ void TestString()
 
   const auto&& moved_string = std::move(new_str);
   std::cout << moved_string << " and moved from " << new_str << '\n';
+
+
+  sp::string test3 = "Part ";
+  test3 += " first";
+  test3 += " second";
+  test3 += " third";
 }

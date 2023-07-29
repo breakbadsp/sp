@@ -74,9 +74,10 @@ class string {
       if(p_other.capacity_ <= 0)
         return *this;
 
-      auto* new_buffer_ptr = new char[capacity_ + p_other.capacity_];
+      auto* new_buffer_ptr = new char[capacity_ + p_other.capacity_ + 1];
       strcpy(new_buffer_ptr, buffer_);
       strcpy(new_buffer_ptr + capacity_, p_other.buffer_);
+      delete [] buffer_;
       buffer_ = new_buffer_ptr;
       return *this;
     }
