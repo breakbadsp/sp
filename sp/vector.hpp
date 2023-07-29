@@ -48,34 +48,29 @@ class vector
       return buffer_[size_ - 1];
     }
 
-    vector() : 
-     size_(0)
-     ,capacity_(1)
+    vector() : size_(0) ,capacity_(1)
     {
       buffer_  = new T[capacity_];
     }
 
-    vector(const T& p_data) :
-     size_(0)
-     ,capacity_(1)
+    vector(const T& p_data) : size_(0), capacity_(1)
     {
       buffer_ = new T[capacity_];
       buffer_[size_++] = p_data;
     }
 
-    vector(const vector<T>& p_other) : 
-       size_(p_other.size_)
+    vector(const vector<T>& p_other) 
+    : size_(p_other.size_)
       ,capacity_(p_other.capacity_)
     {
       for(size_t i = 0; i < capacity_; ++i)
       {
-        //FIXME:: Use smart pointers
         buffer_[i] = new T(*p_other.buffer[i]);
       }
     }
 
-    vector(vector<T>&& p_other) :
-       size_(std::move(p_other.size_))
+    vector(vector<T>&& p_other) 
+    : size_(std::move(p_other.size_))
       ,capacity_(std::move(p_other.capacity_))
     {
       //TODO:: Add ForEach member function for this class
