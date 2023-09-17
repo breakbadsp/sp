@@ -77,7 +77,7 @@ class string {
         return *this;
 
       auto* new_buffer_ptr = new char[capacity_ + p_other.capacity_ + 1];
-      strcpy(new_buffer_ptr, buffer_);
+      strcpy(new_buffer_ptr, buffer_); //FIXME:: heap-buffer-overflow
       strcpy(new_buffer_ptr + capacity_, p_other.buffer_);
       delete [] buffer_;
       buffer_ = new_buffer_ptr;
