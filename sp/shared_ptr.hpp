@@ -1,3 +1,5 @@
+#pragma once
+
 #include <atomic>
 #include <shared_mutex>
 #include <mutex>
@@ -132,17 +134,22 @@ class shared_ptr {
     T* get() { return raw_ptr_; }
 
     //with raw
-    bool operator==(T* p_raw) { return p_raw == raw_ptr_; }
-    bool operator!=(T* p_raw) { return p_raw != raw_ptr_; }
+    bool operator==(T* p_raw) const { return p_raw == raw_ptr_; }
+    bool operator!=(T* p_raw) const { return p_raw != raw_ptr_; }
 
-    bool operator==(std::nullptr_t p_null) { return p_null == raw_ptr_; }
-    bool operator!=(std::nullptr_t p_null) { return p_null != raw_ptr_; }
+    bool operator==(std::nullptr_t p_null) const { return p_null == raw_ptr_; }
+    bool operator!=(std::nullptr_t p_null) const { return p_null != raw_ptr_; }
 
-    bool operator==(const shared_ptr& p_other) { return raw_ptr_ == p_other.raw_ptr_; }
-    bool operator!=(const shared_ptr& p_other) { return raw_ptr_ != p_other.raw_ptr_; }
+    bool operator==(const shared_ptr& p_other) const { return raw_ptr_ == p_other.raw_ptr_; }
+    bool operator!=(const shared_ptr& p_other) const { return raw_ptr_ != p_other.raw_ptr_; }
+    
+    bool operator!() const { return raw_ptr_ != nullptr; }
 
     T* operator->() { return get(); }
     T operator*() { return *get(); }
+    
+    const T* operator->() const { return get(); }
+    const T& operator*() const { return *get(); }
 
     explicit operator bool() { return raw_ptr_ != nullptr; }
 
