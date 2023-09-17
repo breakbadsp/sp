@@ -28,6 +28,8 @@ class shared_ptr {
         bool DecreaseRefCount() {
           std::unique_lock ul(ref_count_mutex_);
           //std::cout << "ref count before decrease is " << ref_count_.load() << '\n';
+          
+          //FIXME:: use compare_exchange_strong
           if(ref_count_.load() <= 0)
             return false;
 
@@ -130,6 +132,17 @@ class shared_ptr {
       return *this;
     }
 
+    void reset(T* p_raw) {
+      if(raw_ptr_)
+      {
+        if(control_block_ and !control_block_->DecreaseRefCount())
+          Clear();
+      }
+      raw_ptr_ = p_raw;
+      control_block_ = new shared_ptr_control_block(); 
+    }
+
+
     const T* get() const { return raw_ptr_; }
     T* get() { return raw_ptr_; }
 
@@ -143,7 +156,7 @@ class shared_ptr {
     bool operator==(const shared_ptr& p_other) const { return raw_ptr_ == p_other.raw_ptr_; }
     bool operator!=(const shared_ptr& p_other) const { return raw_ptr_ != p_other.raw_ptr_; }
     
-    bool operator!() const { return raw_ptr_ != nullptr; }
+    bool operator!() const { return raw_ptr_ == nullptr; }
 
     T* operator->() { return get(); }
     T operator*() { return *get(); }
