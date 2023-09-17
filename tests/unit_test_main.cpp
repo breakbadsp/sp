@@ -4,6 +4,7 @@
 #include "ListTest.hpp"
 #include "QueueTest.hpp"
 #include "TestSharedPtr.hpp"
+#include "MapTest.hpp"
 
 int main(int argc, char** argv)
 {
@@ -16,5 +17,7 @@ int main(int argc, char** argv)
   TestListApis();
   TestString();
   TestSharedPtr();
+  TestMap();
+
   std::cout << "test are done\n";
 }
