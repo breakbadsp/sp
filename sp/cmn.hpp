@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-
+namespace sp {
 inline auto SetThreadCore(int p_core_id)
 {
   cpu_set_t cpu_set;
@@ -95,4 +95,5 @@ inline auto CreateAndRunThread(int p_core_id,
   }
 
   return t;
+}
 }

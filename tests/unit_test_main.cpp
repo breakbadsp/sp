@@ -13,6 +13,7 @@ int main(int argc, char** argv)
   std::vector<std::thread*> threads;
   TestCmn();
   
+  using namespace sp;
   if(argc <= 1)
     threads.emplace_back(CreateAndRunThread(-1, "TestQueue", TestQueue, 1));
   else

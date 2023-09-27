@@ -8,7 +8,8 @@ int CalculateSum(int a, int b, int c)
 
 void TestCmn()
 {
-    auto* new_thread = CreateAndRunThread(
+
+    auto* new_thread = sp::CreateAndRunThread(
             0, 
             "TestThread",
             CalculateSum,
