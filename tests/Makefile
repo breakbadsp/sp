@@ -3,7 +3,7 @@ CXX = g++-12
 #CXX = g++
 #CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Werror -std=c++23 -I../sp/
+CXXFLAGS = -g -O2 -Werror -std=c++23 -I../sp/ -I../experiments/
 
 #Warning flags 
 # Pending Winfinite-recursion, 

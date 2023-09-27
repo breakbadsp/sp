@@ -7,6 +7,7 @@
 #include "MapTest.hpp"
 #include "CMN.hpp"
 #include "cmn.hpp"
+#include "OrderBook.hpp"
 
 int main(int argc, char** argv)
 {

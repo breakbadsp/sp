@@ -44,7 +44,7 @@ default:	$(TARGET)
 all:	default
 
 OBJECTS = $(patsubst %.cpp, $(OUTDIR)/%.o, $(wildcard *.cpp))
-HEADERS := $(wildcard *.h, wildcard *.hpp)
+HEADERS := $(wildcard *.hpp, wildcard *.hpp)
 #HEADERS += $(../sp/wildcard *.h, ../sp/wildcard *.hpp)
 
 $(OUTDIR)/%.o:	%.cpp $(HEADERS)
