@@ -35,6 +35,9 @@ LDDFLAGS = 	-fsanitize=address \
 			-fno-omit-frame-pointer \
 		   
 
+CXXFLAGS += -fext-numeric-literals
+LDDFLAGS += -fext-numeric-literals
+
 TARGET = unit_test
 OUTDIR = ../output
 
