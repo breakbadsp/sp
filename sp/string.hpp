@@ -76,9 +76,10 @@ class string {
       if(p_other.capacity_ <= 0)
         return *this;
 
-      auto* new_buffer_ptr = new char[capacity_ + p_other.capacity_ + 1];
+      const size_t new_size = capacity_ + p_other.capacity_ + 1;
+      auto* new_buffer_ptr = new char[new_size];
       strcpy(new_buffer_ptr, buffer_); //FIXME:: heap-buffer-overflow
-      strcpy(new_buffer_ptr + capacity_, p_other.buffer_);
+      strcpy(new_buffer_ptr + sizeof(buffer_) - 1, p_other.buffer_);
       delete [] buffer_;
       buffer_ = new_buffer_ptr;
       return *this;
@@ -101,12 +102,12 @@ class string {
     unsigned int capacity_ {0};
 
     void Init(const char* p_c_style) {
-      Init(strlen(p_c_style));
-      strcpy(buffer_, p_c_style);
+      Init(strlen(p_c_style)+1);
+      strncpy(buffer_, p_c_style, size_);
     }
 
     void Init(const unsigned p_len) {
-      buffer_ = new char[p_len + 1];
+      buffer_ = new char[p_len];
       size_ = p_len;
       capacity_ = p_len;
     }
