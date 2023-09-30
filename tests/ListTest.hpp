@@ -23,7 +23,7 @@ void TestListApis()
   obj.Print();
 
   struct Test {
-    int number;
+    int number {0};
   };
 
   Test t2;

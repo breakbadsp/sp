@@ -166,7 +166,7 @@ private:
     struct Node{
         Node() = default;
 
-        Node(const T& val) : value_(val) {}
+        Node(const T& val) : value_(val), next_(nullptr) {}
         Node(const T& val, sp::owning_ptr<Node>&& next) :
             value_(val),
             next_(std::move(next))
