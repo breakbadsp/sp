@@ -1,5 +1,10 @@
+#include <cassert>
+ 
 #include "CMN.hpp"
 #include "cmn.hpp"
+
+#define ASSERT(exp) exp ? std::cout << "Test case " << #exp << " passed\n" : \
+                          std::cout << "Test case " << #exp << " failed!\n";
 
 int CalculateSum(int a, int b, int c)
 {
@@ -7,6 +12,12 @@ int CalculateSum(int a, int b, int c)
 }
 
 void TestCmn()
+{
+  TestFloatingPointMath();
+  //TestThreadCreation();
+}
+
+void TestThreadCreation()
 {
 
     auto* new_thread = sp::CreateAndRunThread(
@@ -22,4 +33,22 @@ void TestCmn()
     new_thread->join();
     std::cout << "Exiting main\n";
     delete new_thread;   
+}
+
+void TestFloatingPointMath()
+{
+  //Greater
+  ASSERT(!sp::almost_equal(100.0009, 100.0008, 5));
+  ASSERT(!sp::less_than(100.0009, 100.0008, 5));
+  ASSERT(sp::greater_than(100.0009, 100.0008, 5));
+
+  //less
+  ASSERT(!sp::almost_equal(100.0007, 100.0008, 5));
+  ASSERT(sp::less_than(100.0007, 100.0008, 5));
+  ASSERT(!sp::greater_than(100.0007, 100.0008, 5));
+
+  //Equal
+  ASSERT(sp::almost_equal(100.0008, 100.0008, 5));
+  ASSERT(!sp::less_than(100.0008, 0.0008, 5));
+  ASSERT(!sp::greater_than(100.0008, 100.0008, 5));
 }

@@ -4,6 +4,8 @@
 #include <atomic>
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <cmath>
 
 namespace sp {
 inline auto SetThreadCore(int p_core_id)
@@ -96,4 +98,41 @@ inline auto CreateAndRunThread(int p_core_id,
 
   return t;
 }
+
+//copied from https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+    almost_equal(T x, T y, int ulp)
+{
+    // the machine epsilon has to be scaled to the magnitude of the values used
+    // and multiplied by the desired precision in ULPs (units in the last place)
+    return std::fabs(x - y) <= std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp
+        // unless the result is subnormal
+        || std::fabs(x - y) < std::numeric_limits<T>::min();
 }
+
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+    less_than(T x, T y, int ulp)
+{
+    // the machine epsilon has to be scaled to the magnitude of the values used
+    // and multiplied by the desired precision in ULPs (units in the last place)
+    // if (x-y) is less than zero then return true, else false
+    return ((x - y) < std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp) && 
+           !(almost_equal(x,y,ulp));
+}
+
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+    greater_than(T x, T y, int ulp)
+{
+    // the machine epsilon has to be scaled to the magnitude of the values used
+    // and multiplied by the desired precision in ULPs (units in the last place)
+    // if (y-x) is less than zero then return true, else false
+    return ((y - x) < std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp) && 
+          !(almost_equal(x,y,ulp));
+}
+
+}//sp
+
+

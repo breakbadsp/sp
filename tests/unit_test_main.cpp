@@ -7,19 +7,18 @@
 #include "MapTest.hpp"
 #include "CMN.hpp"
 #include "cmn.hpp"
-#include "OrderBook.hpp"
 
-int main(int argc, char** argv)
+int main()
 {
   std::vector<std::thread*> threads;
   TestCmn();
   
   using namespace sp;
-  if(argc <= 1)
-    threads.emplace_back(CreateAndRunThread(-1, "TestQueue", TestQueue, 1));
-  else
-    threads.emplace_back(CreateAndRunThread(0, "TestQueue", TestQueue, atoi(argv[1])));
-
+  //if(argc <= 1)
+    //threads.emplace_back(CreateAndRunThread(-1, "TestQueue", TestQueue, 1));
+  //else
+    //threads.emplace_back(CreateAndRunThread(0, "TestQueue", TestQueue, atoi(argv[1])));
+  /*
   threads.emplace_back(CreateAndRunThread(1, "TestVectorPushBack", TestVectorPushBack));
   threads.emplace_back(CreateAndRunThread(2, "TestListApis", TestListApis));
   threads.emplace_back(CreateAndRunThread(3, "TestString", TestString));
@@ -31,6 +30,6 @@ int main(int argc, char** argv)
     t->join();
     delete t;
   }
-  
+  */
   std::cout << "test are done\n";
 }
