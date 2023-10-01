@@ -8,6 +8,7 @@ Global TODO:
 		5. sp::map
 		6. sp::queue
 		7. sp::string
+			- Add short string optimization
 	TODO::
 		8. sp::move
 		9. sp::set
