@@ -1,0 +1,23 @@
+Global TODO:
+
+	1. Build Data structures liabrary using modern C++
+		1. sp::owning_ptr
+		2. sp::shared_ptr
+		3. sp::list
+		4. sp::doubly_list
+		5. sp::map
+		6. sp::queue
+		7. sp::string
+	TODO::
+		8. sp::move
+		9. sp::set
+		10. sp::unordered_map
+		11. sp::unordered_set
+		12. 
+		
+		
+	2. Build trading engine using modern c++
+	3. Build trading engine using RUST
+	4. Build RayTracing
+	5. Build a Physics engine for a game
+	
