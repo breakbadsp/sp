@@ -14,7 +14,22 @@ int CalculateSum(int a, int b, int c)
 void TestCmn()
 {
   TestFloatingPointMath();
-  //TestThreadCreation();
+  TestThreadCreation();
+  TestMoveAndForward();
+}
+
+void TestMoveAndForward()
+{
+  std::cout << "\n===========TestMoveAndForward==============\n";
+  int a = 10;
+  int b = sp::move(a);
+
+  int c = sp::move(b);
+  [[maybe_unused]] auto d = sp::forward(c);
+
+  std::cout << d << '\n';
+  (void)d;
+  std::cout << "\n===========TestMoveAndForward==============\n";
 }
 
 void TestThreadCreation()

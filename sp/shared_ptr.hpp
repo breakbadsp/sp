@@ -4,6 +4,8 @@
 #include <shared_mutex>
 #include <mutex>
 
+#include "cmn.hpp"
+
 namespace sp
 {
 template<typename T>
@@ -89,8 +91,8 @@ class shared_ptr
     }
 
     shared_ptr(shared_ptr&& p_other) 
-    : raw_ptr_(std::move(p_other.raw_ptr_))
-    , control_block_(std::move(p_other.control_block_))
+    : raw_ptr_(sp::move(p_other.raw_ptr_))
+    , control_block_(sp::move(p_other.control_block_))
     {}
 
     shared_ptr& operator=(const shared_ptr& p_other) 
@@ -119,8 +121,8 @@ class shared_ptr
       if(this == &p_other)
         return *this;
 
-      raw_ptr_ = std::move(p_other.raw_ptr_);
-      control_block_ = std::move(p_other.control_block_);
+      raw_ptr_ = sp::move(p_other.raw_ptr_);
+      control_block_ = sp::move(p_other.control_block_);
   
       return *this;
     }

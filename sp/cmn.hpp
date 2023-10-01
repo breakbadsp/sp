@@ -7,7 +7,8 @@
 #include <cstdlib>
 #include <cmath>
 
-namespace sp {
+namespace sp 
+{
 inline auto SetThreadCore(int p_core_id)
 {
   cpu_set_t cpu_set;
@@ -102,7 +103,7 @@ inline auto CreateAndRunThread(int p_core_id,
 //copied from https://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-    almost_equal(T x, T y, int ulp)
+    almost_equal(T x, T y, int ulp) noexcept
 {
     // the machine epsilon has to be scaled to the magnitude of the values used
     // and multiplied by the desired precision in ULPs (units in the last place)
@@ -113,7 +114,7 @@ typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
 
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-    less_than(T x, T y, int ulp)
+    less_than(T x, T y, int ulp) noexcept
 {
     // the machine epsilon has to be scaled to the magnitude of the values used
     // and multiplied by the desired precision in ULPs (units in the last place)
@@ -124,13 +125,25 @@ typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
 
 template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
-    greater_than(T x, T y, int ulp)
+    greater_than(T x, T y, int ulp) noexcept
 {
     // the machine epsilon has to be scaled to the magnitude of the values used
     // and multiplied by the desired precision in ULPs (units in the last place)
     // if (y-x) is less than zero then return true, else false
     return ((y - x) < std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp) && 
           !(almost_equal(x,y,ulp));
+}
+
+template<class T>
+constexpr std::remove_reference_t<T>&& move(T&& t) noexcept //t is universal ref or forwarding reference
+{
+  return static_cast<typename std::remove_reference<T>::type&&>(t);
+}
+
+template<class T>
+constexpr T&& forward(T&& t) noexcept //t is universal ref or forwarding reference
+{
+  return static_cast<T&&>(t);
 }
 
 }//sp

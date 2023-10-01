@@ -32,9 +32,9 @@ class string
     }
 
     explicit string(string&& p_other) :
-      buffer_(std::move(p_other.buffer_))
-      ,size_(std::move(p_other.size_))
-      ,capacity_(std::move(p_other.capacity_))
+      buffer_(sp::move(p_other.buffer_))
+      ,size_(sp::move(p_other.size_))
+      ,capacity_(sp::move(p_other.capacity_))
     {
       p_other.buffer_ = nullptr;
       p_other.size_ = 0;
@@ -55,9 +55,9 @@ class string
       if(this == &p_other)
         return *this;
       
-      buffer_ = std::move(p_other.buffer_);
-      size_ = std::move(p_other.size_);
-      capacity_ = std::move(p_other.capacity_);
+      buffer_ = sp::move(p_other.buffer_);
+      size_ = sp::move(p_other.size_);
+      capacity_ = sp::move(p_other.capacity_);
 
       p_other.buffer_ = nullptr;
       p_other.size_ = 0;

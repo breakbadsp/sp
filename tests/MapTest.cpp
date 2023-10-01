@@ -2,7 +2,7 @@
 #include "map.hpp"
 
 void TestMap() {
-  std::cout << "=======================Testing sp::map starts==========================\n";
+  std::cout << "\n=======================Testing sp::map starts==========================\n";
   sp::map<int, int> tmp1;
   tmp1.insert({5,1});
   tmp1.insert({2,1});
@@ -16,5 +16,5 @@ void TestMap() {
   tmp1.insert({10,1});
   tmp1.insert({11,1});
   tmp1.Print();
-  std::cout << "=======================Testing sp::map Ends==========================\n";
+  std::cout << "\n=======================Testing sp::map Ends==========================\n";
 }

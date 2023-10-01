@@ -2,6 +2,8 @@
 #include <utility>
 #include <type_traits>
 
+#include "cmn.hpp"
+
 namespace sp
 {
 
@@ -35,7 +37,7 @@ class owning_ptr final
       if(&p_other == this)
         return;
 
-      raw_ptr_ = std::move(p_other.raw_ptr_);
+      raw_ptr_ = sp::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
     }
 
@@ -45,24 +47,24 @@ class owning_ptr final
       if(&p_other == this)
         return *this;
 
-      raw_ptr_ = std::move(p_other.raw_ptr_);
+      raw_ptr_ = sp::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
 
       return *this;
     }
 
-    owning_ptr& operator=(T* p_raw) 
+    /*owning_ptr& operator=(T* p_raw)  // this should be compiler error
     { 
       raw_ptr_ = p_raw; 
       return *this;
-    }
+    }*/
 
     T operator[](size_t p_index) { return raw_ptr_[p_index]; }
 
     void reset(owning_ptr&& p_other) 
     {
       delete raw_ptr_;
-      raw_ptr_ = std::move(p_other.raw_ptr_);
+      raw_ptr_ = sp::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
     }
 

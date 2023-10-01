@@ -39,7 +39,7 @@ public:
             //Print();
             return;
         }
-        head_ = new Node(val, std::move(head_), nullptr);
+        head_ = new Node(val, sp::move(head_), nullptr);
         //std::cout << "After adding " << val <<" at Head \n";
         //Print();
     }
@@ -95,7 +95,7 @@ public:
         if(itr->next_ == nullptr)
         {
             //FIXME:: assert(itr == tail)
-            itr->next_ = new Node(val, nullptr, std::move(tail_));
+            itr->next_ = new Node(val, nullptr, sp::move(tail_));
             tail_ = itr->next_;
             //std::cout << "After adding " << val << " at " << index << "\n";
             return;
@@ -123,10 +123,10 @@ public:
                 tail_ = nullptr;
                 return;
             }
-            //auto temp = std::move(head_->next_);
+            //auto temp = sp::move(head_->next_);
             //head_.reset(nullptr);
-            //head_ = std::move(temp);
-            head_ = std::move(head_->next_);
+            //head_ = sp::move(temp);
+            head_ = sp::move(head_->next_);
             head_->prev_ = nullptr;
             return;
         }
@@ -169,11 +169,11 @@ public:
         }
         
         //middle
-        //auto temp = std::move(itr->next_);//copy itr next
+        //auto temp = sp::move(itr->next_);//copy itr next
         //prev->next_.reset(nullptr); // delete itr
-        //prev->next_ = std::move(temp); //copy itr next;
+        //prev->next_ = sp::move(temp); //copy itr next;
         
-        prev->next_ = std::move(itr->next_);
+        prev->next_ = sp::move(itr->next_);
         //std::cout << "After deleting middle element at " <<  index <<"\n";
         //Print();
     }

@@ -12,7 +12,7 @@ void TestString()
   const auto new_str = test1 + test2;
   std::cout << new_str << '\n';
 
-  const auto&& moved_string = std::move(new_str);
+  const auto&& moved_string = sp::move(new_str);
   std::cout << moved_string << " and moved from " << new_str << '\n';
 
 

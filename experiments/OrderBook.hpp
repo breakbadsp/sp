@@ -239,7 +239,7 @@ public:
         }
         auto new_book = std::make_unique<OrderBook>(p_event.symbol_);
         auto* ptr = new_book.get();
-        s_order_book_by_symbol.insert_or_assign(p_event.symbol_, std::move(new_book));
+        s_order_book_by_symbol.insert_or_assign(p_event.symbol_, sp::move(new_book));
         return ptr->AddOrder((order));   
       }
       break;

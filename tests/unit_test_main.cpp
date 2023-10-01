@@ -47,7 +47,8 @@ int main()
     //threads.emplace_back(CreateAndRunThread(-1, "TestQueue", TestQueue, 1));
   //else
     //threads.emplace_back(CreateAndRunThread(0, "TestQueue", TestQueue, atoi(argv[1])));
-  /*
+
+  
   threads.emplace_back(CreateAndRunThread(1, "TestVectorPushBack", TestVectorPushBack));
   threads.emplace_back(CreateAndRunThread(2, "TestListApis", TestListApis));
   threads.emplace_back(CreateAndRunThread(3, "TestString", TestString));
@@ -59,6 +60,6 @@ int main()
     t->join();
     delete t;
   }
-  */
+  
   std::cout << "test are done\n";
 }

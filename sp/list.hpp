@@ -39,7 +39,7 @@ public:
             return;
         }
         
-        head_ = sp::make_owning<Node>(val, std::move(head_));
+        head_ = sp::make_owning<Node>(val, sp::move(head_));
         //std::cout << "After adding " << val <<" at Head \n";
         //Print();
     }
@@ -102,7 +102,7 @@ public:
             return;
         }
         
-        itr->next_ = sp::make_owning<Node>(val, std::move(itr->next_));
+        itr->next_ = sp::make_owning<Node>(val, sp::move(itr->next_));
         //std::cout << "After adding " << val << " at " << index << "\n";
         //Print();
     }
@@ -120,10 +120,10 @@ public:
                 head_.reset(nullptr);
                 return;
             }
-            //auto temp = std::move(head_->next_);
+            //auto temp = sp::move(head_->next_);
             //head_.reset(nullptr);
-            //head_ = std::move(temp);
-            head_ = std::move(head_->next_);
+            //head_ = sp::move(temp);
+            head_ = sp::move(head_->next_);
             return;
         }
         
@@ -164,11 +164,11 @@ public:
         }
         
         //middle
-        //auto temp = std::move(itr->next_);//copy itr next
+        //auto temp = sp::move(itr->next_);//copy itr next
         //prev->next_.reset(nullptr); // delete itr
-        //prev->next_ = std::move(temp); //copy itr next;
+        //prev->next_ = sp::move(temp); //copy itr next;
         
-        prev->next_ = std::move(itr->next_);
+        prev->next_ = sp::move(itr->next_);
         //std::cout << "After deleting middle element at " <<  index <<"\n";
         //Print();
     }
@@ -192,7 +192,7 @@ private:
         Node(const T& val) : value_(val), next_(nullptr) {}
         Node(const T& val, sp::owning_ptr<Node>&& next) :
             value_(val),
-            next_(std::move(next))
+            next_(sp::move(next))
         {}
         
         T value_ {0};

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cassert>
 
+#include "cmn.hpp"
+
 namespace sp{
 template<typename T>
 class vector
@@ -71,13 +73,13 @@ class vector
     }
 
     vector(vector<T>&& p_other) 
-    : size_(std::move(p_other.size_))
-      ,capacity_(std::move(p_other.capacity_))
+    : size_(sp::move(p_other.size_))
+      ,capacity_(sp::move(p_other.capacity_))
     {
       //TODO:: Add ForEach member function for this class
       for(size_t i = 0; i < capacity_; ++i)
       {
-        buffer_[i] = new T(std::move(*p_other.buffer[i]));
+        buffer_[i] = new T(sp::move(*p_other.buffer[i]));
       } 
     }
 
