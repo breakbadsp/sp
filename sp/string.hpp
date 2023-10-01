@@ -5,24 +5,29 @@
 
 #include "owning_ptr.hpp"
 
-namespace sp {
+namespace sp
+{
 
-class string {
+class string
+{
 
   public:
     string() = default;
 
     ~string() { delete [] buffer_; }
     
-    string(const char* p_c_style) {
+    string(const char* p_c_style) 
+    {
       Init(p_c_style);
     }
 
-    explicit string(decltype(nullptr)) {
+    explicit string(decltype(nullptr))
+    {
       string();
     }
 
-    string(const string& p_other) {
+    string(const string& p_other)
+    {
       Init(p_other.buffer_);
     }
 
@@ -36,7 +41,8 @@ class string {
       p_other.capacity_= 0;
     }
 
-    string& operator=(const string& p_other) {
+    string& operator=(const string& p_other)
+    {
       if(this == &p_other)
         return *this;
 
@@ -44,7 +50,8 @@ class string {
       return *this;
     }
 
-    string& operator=(string&& p_other) {
+    string& operator=(string&& p_other)
+    {
       if(this == &p_other)
         return *this;
       
@@ -101,12 +108,14 @@ class string {
     unsigned int size_ {0};
     unsigned int capacity_ {0};
 
-    void Init(const char* p_c_style) {
+    void Init(const char* p_c_style)
+    {
       Init(strlen(p_c_style)+1);
       strncpy(buffer_, p_c_style, size_);
     }
 
-    void Init(const unsigned p_len) {
+    void Init(const unsigned p_len)
+    {
       buffer_ = new char[p_len];
       size_ = p_len;
       capacity_ = p_len;

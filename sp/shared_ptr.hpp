@@ -4,17 +4,19 @@
 #include <shared_mutex>
 #include <mutex>
 
-namespace sp{
-
+namespace sp
+{
 template<typename T>
-class shared_ptr {
+class shared_ptr 
+{
   public:
     class shared_ptr_control_block
     {
       public:
         shared_ptr_control_block() = default;
 
-        bool IncreaseRefCount() {
+        bool IncreaseRefCount() 
+        {
           std::unique_lock ul(ref_count_mutex_);
           //std::cout << "ref count before increase is " << ref_count_.load() << '\n';
           if(ref_count_.load() <= 0)
@@ -25,7 +27,8 @@ class shared_ptr {
           return true;
         }
 
-        bool DecreaseRefCount() {
+        bool DecreaseRefCount() 
+        {
           std::unique_lock ul(ref_count_mutex_);
           //std::cout << "ref count before decrease is " << ref_count_.load() << '\n';
           
@@ -49,17 +52,18 @@ class shared_ptr {
   public:
     shared_ptr()
     : raw_ptr_(nullptr)
-    , control_block_(nullptr) {
-    }
+    , control_block_(nullptr) 
+    { }
 
     shared_ptr(T* p_raw_ptr) 
     : raw_ptr_(p_raw_ptr)
-    , control_block_(new shared_ptr_control_block()) {
+    , control_block_(new shared_ptr_control_block()) 
+    { }
 
-    }
-
-    shared_ptr& operator=(decltype(nullptr)){
-      if(control_block_ and !control_block_->DecreaseRefCount()) {
+    shared_ptr& operator=(decltype(nullptr))
+    {
+      if(control_block_ and !control_block_->DecreaseRefCount()) 
+      {
         Clear();
       }
       raw_ptr_ = nullptr;
@@ -67,7 +71,8 @@ class shared_ptr {
       return *this;
     }
 
-    ~shared_ptr() {
+    ~shared_ptr()
+    {
       if(control_block_ and !control_block_->DecreaseRefCount())
       {
         Clear();
@@ -88,11 +93,13 @@ class shared_ptr {
     , control_block_(std::move(p_other.control_block_))
     {}
 
-    shared_ptr& operator=(const shared_ptr& p_other) {
+    shared_ptr& operator=(const shared_ptr& p_other) 
+    {
       if(this == &p_other)
         return *this;
 
-      if(raw_ptr_) {
+      if(raw_ptr_) 
+      {
         if(control_block_ and !control_block_->DecreaseRefCount())
           Clear();
       }
@@ -107,7 +114,8 @@ class shared_ptr {
       return *this;
     }
 
-    shared_ptr& operator=(shared_ptr&& p_other) {
+    shared_ptr& operator=(shared_ptr&& p_other) 
+    {
       if(this == &p_other)
         return *this;
 
@@ -117,7 +125,8 @@ class shared_ptr {
       return *this;
     }
     
-    shared_ptr& operator=(T* p_raw_ptr) {
+    shared_ptr& operator=(T* p_raw_ptr) 
+    {
       if(raw_ptr_ == p_raw_ptr)
         return *this;
 
@@ -132,7 +141,8 @@ class shared_ptr {
       return *this;
     }
 
-    void reset(T* p_raw) {
+    void reset(T* p_raw) 
+    {
       if(raw_ptr_)
       {
         if(control_block_ and !control_block_->DecreaseRefCount())

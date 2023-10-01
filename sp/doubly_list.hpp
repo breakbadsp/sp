@@ -4,10 +4,12 @@
 namespace sp {
 
 template<typename T>
-class doubly_list {
+class doubly_list 
+{
 public:
     ///TODO::Delete all the commented code once this container is matured
-    T get(size_t index) {
+    T get(size_t index) 
+    {
         if(head_ == nullptr) 
             return {};
     
@@ -16,7 +18,8 @@ public:
 
         auto* itr = head_.get();
         size_t i = 0;
-        for(;i < index && itr->next_ != nullptr; ++i){
+        for(;i < index && itr->next_ != nullptr; ++i)
+        {
             itr = itr->next_.get();
         }
         
@@ -26,8 +29,10 @@ public:
         return itr->value_;
     }
     
-    void push_front(const T& val) {
-        if(head_ == nullptr){
+    void push_front(const T& val) 
+    {
+        if(head_ == nullptr)
+        {
             //std::cout << "After adding " << val <<" at head, NEW \n";
             head_ = new Node(val);
             tail_ = head_;
@@ -39,7 +44,8 @@ public:
         //Print();
     }
     
-    void push_back(const T& val) {
+    void push_back(const T& val) 
+    {
         if(tail_ == nullptr) 
             return push_front(val);
         
@@ -51,13 +57,15 @@ public:
         //Print();
     }
     
-    void insert_at(size_t index, const T& val) {
+    void insert_at(size_t index, const T& val) 
+    {
         //std::cout << "before adding " << val << " at " << index << "\n";
         //Print();
         if(index == 0) 
             return push_front(val);
         
-        if(head_ == nullptr){
+        if(head_ == nullptr)
+        {
             //std::cout << "Empty list and add at index = " << index << "  > 0\n";
             return;
         }
@@ -65,23 +73,27 @@ public:
         Node* itr = head_.get();
         //Node* prev = head_.get();
         size_t i = 1;
-        for(; itr->next_ != nullptr &&  i < index; ++i){
+        for(; itr->next_ != nullptr &&  i < index; ++i)
+        {
             //prev = itr;
             itr = itr->next_.get();
         }
         
-        if(i < index){
+        if(i < index)
+        {
             //std::cout << "Add at tail called with wrong index=" << index << "\n";
             return;
         }
         
-        if(i > index){
+        if(i > index)
+        {
             //std::cout << "Cannot happen, Add at tail called with wrong index=" << index << "\n";
             return;
         }
         
         //Tail
-        if(itr->next_ == nullptr){
+        if(itr->next_ == nullptr)
+        {
             //FIXME:: assert(itr == tail)
             itr->next_ = new Node(val, nullptr, std::move(tail_));
             tail_ = itr->next_;
@@ -97,12 +109,15 @@ public:
         //Print();
     }
     
-    void delete_at(size_t index) {
+    void delete_at(size_t index) 
+    {
         if(head_ == nullptr) 
             return;
         
-        if(index == 0){
-            if(head_->next_ == nullptr){
+        if(index == 0)
+        {
+            if(head_->next_ == nullptr)
+            {
                 //std::cout << "deleting only first element\n";
                 head_ = nullptr;
                 tail_ = nullptr;
@@ -116,7 +131,8 @@ public:
             return;
         }
         
-        if(index == 1 && head_->next_ == nullptr){
+        if(index == 1 && head_->next_ == nullptr)
+        {
             //std::cout << "Nothing to delete at " << index << "\n";
             return;
         }
@@ -124,23 +140,27 @@ public:
         Node* itr = head_->next_.get();
         Node* prev = head_.get();
         size_t i = 1;
-        for( ;i < index && itr->next_ != nullptr; ++i){
+        for( ;i < index && itr->next_ != nullptr; ++i)
+        {
             prev = itr;
             itr = itr->next_.get();
         }
         
-        if(i < index){
+        if(i < index)
+        {
             //std::cout << "Wrong index to delete " << index << " > size " << i << "\n";
             return;
         }
         
-        if(itr == nullptr){
+        if(itr == nullptr)
+        {
             //std::cout << "Nothing to delete at index " << index << "\n";
             return;
         }
         
         //tail //FIXME:: assert(taill == itr)
-        if(itr->next_ == nullptr){
+        if(itr->next_ == nullptr)
+        {
             //std::cout << "Deleting last element\n";
             prev->next_ = nullptr;
             tail_ = prev;
@@ -158,9 +178,11 @@ public:
         //Print();
     }
     
-    void Print() const{
+    void Print() const
+    {
         auto* itr = head_.get();
-        while(itr != nullptr){
+        while(itr != nullptr)
+        {
             //std::cout << itr->value_ << ", ";
             itr = itr->next_.get();
         }
@@ -169,10 +191,12 @@ public:
 
     
 private:
-    struct Node{
+    struct Node
+    {
         Node() = default;
 
-        Node(const T& val) : value_(val) {
+        Node(const T& val) : value_(val) 
+        {
         }
 
         Node(const T& val, sp::shared_ptr<Node> p_next, sp::shared_ptr<Node> p_prev) :
@@ -191,5 +215,3 @@ private:
     //FIXME:: Memory leak in all operations of this container
 };
 } //namespace sp
-
-

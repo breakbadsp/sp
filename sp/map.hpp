@@ -3,19 +3,26 @@
 
 #include "shared_ptr.hpp"
 
-namespace sp {
+namespace sp 
+{
 template<typename KeyType, typename ValueType>
-class map final {
+class map final 
+{
   public:
-    struct Node {
-      Node(const std::pair<KeyType, ValueType>& p_pair) {
+    struct Node 
+    {
+      Node(const std::pair<KeyType, ValueType>& p_pair) 
+      {
         key_ = p_pair.first;
         value_ = p_pair.second;
       }
 
-      bool Insert(const std::pair<KeyType, ValueType>& p_pair) {
-        if(p_pair.first < key_) {
-          if(left() == nullptr) {
+      bool Insert(const std::pair<KeyType, ValueType>& p_pair) 
+      {
+        if(p_pair.first < key_) 
+        {
+          if(left() == nullptr) 
+          {
             left_.reset(new Node(p_pair));
             std::cout << "inserted " << p_pair.first << " on left of " << key_ << "\n";
             return true;
@@ -23,8 +30,10 @@ class map final {
           return left_->Insert(p_pair);
         }
           
-        if(p_pair.first > key_) {
-          if(right() == nullptr) {
+        if(p_pair.first > key_) 
+        {
+          if(right() == nullptr) 
+          {
             right_.reset(new Node(p_pair));
             std::cout << "inserted " << p_pair.first << " on right of " << key_ << "\n";
             return true;
@@ -37,13 +46,16 @@ class map final {
       }
 
       
-      bool IsLeafNode() const {
+      bool IsLeafNode() const 
+      {
         return ( (left() == nullptr) && (right() == nullptr));
       }
 
       //TODO:: this should be const member function
-      void  PrintInOrder() {
-        if(IsLeafNode()) {
+      void  PrintInOrder() 
+      {
+        if(IsLeafNode()) 
+        {
           std::cout << key() << ':' << value() << ' ';
           return;
         }
@@ -68,8 +80,10 @@ class map final {
     map() = default;
     ~map() = default;
 
-    bool insert(const std::pair<KeyType, ValueType>& p_pair) {
-      if(Empty()) {
+    bool insert(const std::pair<KeyType, ValueType>& p_pair) 
+    {
+      if(Empty()) 
+      {
         root_.reset(new Node(p_pair));
         std::cout << "inserted " << p_pair.first << " at root\n";
         return true;
@@ -77,7 +91,8 @@ class map final {
       return root_->Insert(p_pair);
     }
 
-    bool Empty() const {
+    bool Empty() const 
+    {
       if(!root_)
         return true;
       
@@ -85,8 +100,10 @@ class map final {
     }
 
     //TODO:: this should be const member function
-    void Print() {
-      if(Empty()){
+    void Print() 
+    {
+      if(Empty())
+      {
         std::cout << "Nothing to print in this sp::map\n";
         return;
       }
@@ -95,8 +112,6 @@ class map final {
 
   private:
     sp::shared_ptr<Node> root_;
-
-
 
 }; //map
 } //namesapce sp
