@@ -9,12 +9,16 @@ Global TODO:
 		6. sp::queue
 		7. sp::string
 			- Add short string optimization
+		8. sp::vector
+			- Add short vector optimization
 	TODO::
 		8. sp::move
 		9. sp::set
 		10. sp::unordered_map
 		11. sp::unordered_set
-		12. 
+			- https://cseweb.ucsd.edu/~kube/cls/100/Lectures/lec16/lec16.html
+		12. sp::array
+			- Add short array optimization
 		
 		
 	2. Build trading engine using modern c++

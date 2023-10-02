@@ -8,9 +8,51 @@
 #include "CMN.hpp"
 #include "cmn.hpp"
 #include "OrderBook.hpp"
+#include "hash_set.hpp"
 
 int main()
 {
+  sp::has_set<int> temp_set;
+  temp_set.insert(1);
+  temp_set.Print();
+  temp_set.insert(2);
+  temp_set.Print();
+  temp_set.insert(3);
+  temp_set.Print();
+  temp_set.insert(4);
+  temp_set.Print();
+  temp_set.insert(5);
+  temp_set.Print();
+  temp_set.insert(6);
+  temp_set.Print();
+
+  if(!temp_set.find(3))
+  {
+    std::cout << "sp::hash_set::find test case failed\n";
+  }
+  temp_set.Print();
+
+  if(temp_set.find(7))
+  {
+    std::cout << "sp::hash_set::find test case failed\n";
+  }
+  temp_set.Print();
+
+  if(!temp_set.erase(1))
+  {
+    std::cout << "sp::hash_set::find test case failed\n";
+  }
+  temp_set.Print();
+
+  if(!temp_set.erase(2))
+  {
+    std::cout << "sp::hash_set::find test case failed\n";
+  }
+  temp_set.Print();
+  
+  return 0;
+  
+
   std::vector<std::thread*> threads;
   TestCmn();
 
