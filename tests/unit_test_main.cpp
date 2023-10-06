@@ -49,6 +49,19 @@ int main()
     std::cout << "sp::hash_set::find test case failed\n";
   }
   temp_set.Print();
+
+  temp_set.insert(1);
+  temp_set.Print();
+  temp_set.insert(2);
+  temp_set.Print();
+  temp_set.insert(3);
+  temp_set.Print();
+  temp_set.insert(4);
+  temp_set.Print();
+  temp_set.insert(5);
+  temp_set.Print();
+  temp_set.insert(6);
+  temp_set.Print();
   
   return 0;
   
