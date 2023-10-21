@@ -10,9 +10,11 @@
 #include "OrderBookTests.hpp"
 #include "HashSetTests.hpp"
 #include "MemPoolTest.hpp"
+#include "mpscllqueue.hpp"
 
 int main()
 {
+  sp::mpscllqueue<int> llq;
   TestMemPool();
   return 0;
   
