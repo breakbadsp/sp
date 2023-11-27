@@ -15,10 +15,10 @@
 int main()
 {
   sp::mpscllqueue<int> llq;
-  TestMemPool();
+  TestCmn();
   return 0;
   
-  TestCmn();
+  TestMemPool();
   TestOrderBook();
   TestHashSet();
   

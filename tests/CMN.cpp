@@ -3,6 +3,7 @@
 #include "CMN.hpp"
 #include "cmn.hpp"
 #include "Types.hpp"
+#include "Hashing.hpp"
 
 #define ASSERT(exp) exp ? std::cout << "Test case " << #exp << " passed\n" : \
                           std::cout << "Test case " << #exp << " failed!\n";
@@ -18,11 +19,17 @@ void TestCmn()
   TestThreadCreation();
   TestMoveAndForward();
   TestTypes();
+  TestHashingFunctions();
 }
 
 void TestTypes()
 {
   [[maybe_unused]]sp::size_t test = 1000;
+}
+
+void TestHashingFunctions()
+{
+  ASSERT( (sp::Hash(105, 10) == 5) );
 }
 
 void TestMoveAndForward()

@@ -5,3 +5,4 @@ void TestFloatingPointMath();
 void TestCmn();
 void TestMoveAndForward();
 void TestTypes();
+void TestHashingFunctions();
