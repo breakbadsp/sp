@@ -2,6 +2,7 @@
  
 #include "CMN.hpp"
 #include "cmn.hpp"
+#include "Types.hpp"
 
 #define ASSERT(exp) exp ? std::cout << "Test case " << #exp << " passed\n" : \
                           std::cout << "Test case " << #exp << " failed!\n";
@@ -16,6 +17,12 @@ void TestCmn()
   TestFloatingPointMath();
   TestThreadCreation();
   TestMoveAndForward();
+  TestTypes();
+}
+
+void TestTypes()
+{
+  [[maybe_unused]]sp::size_t test = 1000;
 }
 
 void TestMoveAndForward()
