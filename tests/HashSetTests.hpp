@@ -2,6 +2,12 @@
 
 #include <iostream>
 #include "hash_set.hpp"
+//#include "HashTable.hpp"
+
+/*void HashTable()
+{
+  [[maybe_unused]] HashTable table;
+}*/
 
 void TestHashSet()
 {

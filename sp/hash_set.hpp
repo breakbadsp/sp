@@ -3,29 +3,10 @@
 #include <type_traits>
 #include <vector>
 
+#include "Hashing.hpp"
+
 namespace sp
 {
-
-  template <class T>
-    requires std::is_integral_v<T>
-  size_t Hash(T p_key, size_t table_size)
-  {
-    std::cout << "Hash(" << p_key << ") = " << p_key % table_size << '\n';
-    return p_key % table_size;
-  };
-
-  template <class T>
-    requires std::is_bounded_array_v<T>
-  size_t Hash(T p_key, size_t table_size)
-  {
-    size_t total = 0;
-    for(const auto ch: p_key)
-    {
-      total += static_cast<size_t>(ch);
-    }
-
-    return total % table_size;
-  };
 
 template <class T>
 class has_set
