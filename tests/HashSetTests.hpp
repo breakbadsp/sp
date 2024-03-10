@@ -2,12 +2,12 @@
 
 #include <iostream>
 #include "hash_set.hpp"
-//#include "HashTable.hpp"
+#include "HashTable.hpp"
 
-/*void HashTable()
+void TestHashTable()
 {
-  [[maybe_unused]] HashTable table;
-}*/
+  [[maybe_unused]] sp::HashTable<int> table;
+}
 
 void TestHashSet()
 {

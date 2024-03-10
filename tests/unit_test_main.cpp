@@ -15,12 +15,14 @@
 int main()
 {
   sp::mpscllqueue<int> llq;
-  TestCmn();
+  TestHashTable();
   return 0;
   
+  #if 0
+  TestHashSet();
   TestMemPool();
   TestOrderBook();
-  TestHashSet();
+  TestCmn();
   
   using namespace sp;
   std::vector<std::thread*> threads;
@@ -35,6 +37,8 @@ int main()
     t->join();
     delete t;
   }
+  #endif
   
   std::cout << "test are done\n";
+
 }
