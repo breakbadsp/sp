@@ -24,6 +24,7 @@ void TestCmn()
   TestMoveAndForward();
   TestTypes();
   TestHashingFunctions();*/
+  TestThreadCreation();
   TestLocks();
 }
 
@@ -88,12 +89,12 @@ void TestFloatingPointMath()
 }
 
 
-void Sum(size_t& p_data, size_t  p_begin, size_t p_end, sp::spinlock_v1& p_lock)
+void Sum(size_t* p_data, size_t  p_begin, size_t p_end, sp::spinlock_v1& p_lock)
 {
-  for(size_t i = p_begin; i <  p_end; ++i)
+  for(size_t i = p_begin; i <= p_end; ++i)
   {
-    p_lock.lock();
-    p_data += i;
+    p_lock.lock(); // if we remove locking TSAN gives error
+    *p_data += i;
     p_lock.unlock();
   }
 }
@@ -106,34 +107,42 @@ void TestLocks()
   std::cout << "Test lock , initial count " << sum_by_t1 << '\n';
   std::cout << "Test lock , initial count " << sum_by_t2 << '\n';
 
+  constexpr size_t TOTAL = 200;
+
   sp::spinlock_v1 lock;
   auto* new_thread1 = sp::CreateAndRunThread(
             1, 
-            "TestThread",
+            "TestThread1",
             Sum,
-            sum_by_t1, 1, 999999, lock
+            &sum_by_t1, 1, TOTAL/2, lock
             );
 
   auto* new_thread2 = sp::CreateAndRunThread(
-            1, 
-            "TestThread",
+            2, 
+            "TestThread2",
              Sum,
-            sum_by_t1, 1000000, 999999999999, lock
+            &sum_by_t1, TOTAL/2 + 1, TOTAL, lock
             );
+  
+    std::cout << "Both workers started\n";
 
     if(!new_thread1 || !new_thread2)
         return;
 
+  std::cout << "Calculating expected\n";
   size_t total = 0;
-  for(size_t i = 1; i < 999999999999; ++i)
-    total += i;
+  for(size_t i = 1; i <= TOTAL; ++i)
+    total += i;  
 
-  std::cout << "Test lock , Final count " << sum_by_t1 
-      << ", expected count " << total <<  '\n';
-
+  if(new_thread1)
     new_thread1->join();
+  if(new_thread2)
     new_thread2->join();
-    delete new_thread1;
-    delete new_thread2;
+
+ std::cout << "Test lock , Final count " << sum_by_t1 
+  << ", expected count " << total <<  '\n';
+
+  delete new_thread1;
+  delete new_thread2;
   std::cout << "Exiting main\n";
 }
