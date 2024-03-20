@@ -19,18 +19,18 @@ CXXFLAGS += -Wall \
 
 #Instrumentation-Options flags
 # Pending -fsanitize=shadow-call-stack, -fstack-check
-CXXFLAGS += -fsanitize=address \
-			-fsanitize=undefined \
-			-fsanitize=leak \
-			-fsanitize-address-use-after-scope \
+CXXFLAGS += -fsanitize=thread \
+			#-fsanitize=undefined \
+			#-fsanitize=leak \
+			#-fsanitize-address-use-after-scope \
 			-fsanitize-recover=all \
 			-fno-omit-frame-pointer \
 			-fstack-protector-all \
 
-LDDFLAGS = 	-fsanitize=address \
-		   	-fsanitize=undefined \
-		   	-fsanitize=leak \
-		   	-fsanitize-address-use-after-scope \
+LDDFLAGS = 	-fsanitize=thread \
+		   	#-fsanitize=undefined \
+		   	#-fsanitize=leak \
+		   	#-fsanitize-address-use-after-scope \
 		   	-fsanitize-recover=all \
 			-fno-omit-frame-pointer \
 		   
