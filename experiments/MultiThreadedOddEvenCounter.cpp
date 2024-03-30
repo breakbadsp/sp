@@ -2,7 +2,7 @@
 #include <iostream>
 #include <mutex>
 
-int main()
+int main1()
 {
     uint32_t counter = 1;
     std::mutex counter_mutex;
@@ -51,4 +51,5 @@ int main()
 
     even_number_printer.join();
     odd_number_printer.join();
+    return 0;
 };
