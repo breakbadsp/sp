@@ -20,17 +20,19 @@ template<typename T>
 class vector 
 {
   public:
+    //special member funcs
     vector() = default;
+    
     vector(size_t p_capacity) 
     : size_(0)
-    , capacity_(p_capacity)
+    , capacity_(0)
     {
-      buffer_ = new T[p_capacity];
+      reallocate(p_capacity);
     }
 
     ~vector()
     {
-      delete [] buffer_;
+      clear();
     }
 
     vector(const vector& p_rhs)
@@ -39,7 +41,7 @@ class vector
     {
       buffer_ = new T[p_rhs.capacity_];
       for(size_t i = 0; i < p_rhs.size_; ++i) {
-        buffer_[i] = p_rhs.buffer_[i];
+        reinterpret_cast<T*>(buffer_)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
       }
     }
 
@@ -61,10 +63,10 @@ class vector
       auto* new_buffer = new T[p_rhs.capacity_];
       for(size_t i = 0; i < p_rhs.size_; ++i)
       {
-        new_buffer[i] = p_rhs.buffer_[i];
+        reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
       }
 
-      delete [] buffer_;
+      clear();
       buffer_ = new_buffer;
       size_ = p_rhs.size_;
       capacity_ = p_rhs.capacity_;
@@ -75,7 +77,7 @@ class vector
       if(this == &p_rhs)
         return *this;
 
-      delete [] buffer_;
+      clear();
       buffer_ = p_rhs.buffer_;
       size_ = p_rhs.size_;
       capacity_ = p_rhs.capacity_;
@@ -85,6 +87,7 @@ class vector
       p_rhs.capacity_ = 0;
     }
 
+    // methods/apis
     void push_back(const T& p_data)
     {
       if(size_ >= capacity_)
@@ -92,25 +95,30 @@ class vector
         reallocate(capacity_ == 0 ? 4 : capacity_ *  2);
       }
 
-      buffer_[size_++] = p_data;
+      new (buffer_ + ((size_) * sizeof(T))) T(p_data);
+      ++size_;
       std::cout << "pushed " << p_data << " at " << size_ - 1 << '\n';
     }
 
     T pop_back()
     {
-      return buffer_[--size_];
+      return reinterpret_cast<T*>(buffer_)[--size_];
     }
 
     T& at(size_t p_index)
     {
       if(p_index >= size_)
       {
+        std::string error = "out of range index ";
+        error += std::to_string(p_index);
         throw std::out_of_range {
-          "out of range"
+          error
         };
+        //Or we can return std::optional
+        //or create our own type sp::option<T>
       }
 
-      return buffer_[p_index];
+      return reinterpret_cast<T*>(buffer_)[p_index];
     }
 
     //getters
@@ -118,22 +126,44 @@ class vector
     size_t capacity() const { return capacity_; }
 
   private:
-    T* buffer_ = {nullptr};
+    //data members
+    alignas(T) unsigned char* buffer_ = {nullptr};
     size_t size_ = 0;
     size_t capacity_ = 0;
 
 
-    void reallocate(size_t p_new_size)
+
+  private:
+    //utility functions:
+    void reallocate(size_t p_new_capacity)
     {
-      std::cout << "reallocating from " << capacity_ << " to " << p_new_size << '\n';
-      auto* new_buffer = new T[p_new_size];
-      for(size_t i = 0; i < size_; ++i)
+      std::cout << "reallocating from " << capacity_ << " to " << p_new_capacity << '\n';
+      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_new_capacity * sizeof(T)));
+      if(!new_buffer)
       {
-        new_buffer[i] = buffer_[i];
+        std::cout << "failed to allocate memory\n";
+        return;
       }
-      delete [] buffer_;
+      
+      if(buffer_)
+      {
+        for(size_t i = 0; i < size_; ++i)
+        {
+          reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(buffer_)[i];
+        }
+        free(buffer_);
+      }
+
       buffer_ = new_buffer;
-      capacity_ = p_new_size;
+      capacity_ = p_new_capacity;
+    }
+
+    void clear()
+    {
+      free(buffer_);
+      size_ = 0;
+      capacity_ = 0;
+      buffer_ = nullptr;
     }
 };
 }
