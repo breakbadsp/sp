@@ -39,16 +39,17 @@ class vector
     : size_ (p_rhs.size_)
     , capacity_(p_rhs.capacity_)
     {
-      buffer_ = new T[p_rhs.capacity_];
+      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_rhs.capacity_ * sizeof(T)));
+      buffer_ = new_buffer;
       for(size_t i = 0; i < p_rhs.size_; ++i) {
         reinterpret_cast<T*>(buffer_)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
       }
     }
 
     vector(vector&& p_rhs)
-    : size_(std::move(p_rhs.size_))
+    : buffer_(p_rhs.buffer_)
+    , size_(std::move(p_rhs.size_))
     , capacity_(std::move(p_rhs.capacity_))
-    , buffer_(p_rhs.buffer_)
     {
       p_rhs.buffer_ = nullptr;
       p_rhs.size_ = 0;
@@ -60,7 +61,7 @@ class vector
       if(this == &p_rhs)
         return *this;
 
-      auto* new_buffer = new T[p_rhs.capacity_];
+      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_rhs.capacity_ * sizeof(T)));
       for(size_t i = 0; i < p_rhs.size_; ++i)
       {
         reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
@@ -70,6 +71,8 @@ class vector
       buffer_ = new_buffer;
       size_ = p_rhs.size_;
       capacity_ = p_rhs.capacity_;
+
+      return *this;
     }
 
     vector& operator=(vector&& p_rhs)
@@ -85,6 +88,8 @@ class vector
       p_rhs.buffer_ = nullptr;
       p_rhs.size_ = 0;
       p_rhs.capacity_ = 0;
+
+      return *this;
     }
 
     // methods/apis
@@ -132,7 +137,6 @@ class vector
     size_t capacity_ = 0;
 
 
-
   private:
     //utility functions:
     void reallocate(size_t p_new_capacity)
@@ -140,10 +144,7 @@ class vector
       std::cout << "reallocating from " << capacity_ << " to " << p_new_capacity << '\n';
       alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_new_capacity * sizeof(T)));
       if(!new_buffer)
-      {
-        std::cout << "failed to allocate memory\n";
         return;
-      }
       
       if(buffer_)
       {
@@ -151,7 +152,9 @@ class vector
         {
           reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(buffer_)[i];
         }
-        free(buffer_);
+        auto old_size = size_;
+        clear();
+        size_ = old_size;
       }
 
       buffer_ = new_buffer;
@@ -160,6 +163,13 @@ class vector
 
     void clear()
     {
+      if(buffer_)
+      {
+        for(size_t i = 0; i < size_; ++i)
+        {
+          reinterpret_cast<T*>(buffer_ + (i*sizeof(T)))->~T();
+        }
+      }
       free(buffer_);
       size_ = 0;
       capacity_ = 0;
