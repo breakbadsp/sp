@@ -33,12 +33,8 @@ class string
 
     explicit string(string&& p_other) :
       buffer_(sp::move(p_other.buffer_))
-      ,size_(sp::move(p_other.size_))
-      ,capacity_(sp::move(p_other.capacity_))
     {
       p_other.buffer_ = nullptr;
-      p_other.size_ = 0;
-      p_other.capacity_= 0;
     }
 
     string& operator=(const string& p_other)
@@ -56,12 +52,8 @@ class string
         return *this;
       
       buffer_ = sp::move(p_other.buffer_);
-      size_ = sp::move(p_other.size_);
-      capacity_ = sp::move(p_other.capacity_);
 
       p_other.buffer_ = nullptr;
-      p_other.size_ = 0;
-      p_other.capacity_ = 0;
       return *this;
     }
 
@@ -71,22 +63,25 @@ class string
     }
 
     string operator+(const string& p_other) const {
+
+      size_t new_len = p_other.get_size() + get_size() + 1;
       string new_string;
-      new_string.Init(get_capacity() + p_other.capacity_);
+      new_string.buffer_ = new char[new_len];
+
       char* new_buffer_ptr = new_string.buffer_;
-      strcpy(new_buffer_ptr, get_raw_buffer());
-      strcpy(new_buffer_ptr + get_capacity(), p_other.buffer_);
+      strncpy(new_buffer_ptr, get_raw_buffer(), get_size());
+      strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
       return new_string;
     }
 
     string& operator+=(const string& p_other){
-      if(p_other.capacity_ <= 0)
+      if(p_other.get_size() <= 0)
         return *this;
 
-      const size_t new_size = capacity_ + p_other.capacity_ + 1;
+      const size_t new_size = get_size() + p_other.get_size() + 1;
       auto* new_buffer_ptr = new char[new_size];
-      strcpy(new_buffer_ptr, buffer_); //FIXME:: heap-buffer-overflow
-      strcpy(new_buffer_ptr + sizeof(buffer_) - 1, p_other.buffer_);
+      strncpy(new_buffer_ptr, buffer_, get_size());
+      strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
       delete [] buffer_;
       buffer_ = new_buffer_ptr;
       return *this;
@@ -99,27 +94,17 @@ class string
 
     //getters
     const char* get_raw_buffer() const { return buffer_; }
-    const unsigned int& get_size() const { return size_; }
-    const unsigned int& get_capacity() const { return capacity_; }
+    unsigned int get_size() const { return strlen(buffer_); }
 
 
   private:
     char* buffer_ {nullptr};
-    unsigned int size_ {0};
-    unsigned int capacity_ {0};
 
     void Init(const char* p_c_style)
     {
-      Init(strlen(p_c_style)+1);
-      strncpy(buffer_, p_c_style, size_);
+      size_t len = strlen(p_c_style) + 1;
+      buffer_ = new char[len];
+      strcpy(buffer_, p_c_style);
     }
-
-    void Init(const unsigned p_len)
-    {
-      buffer_ = new char[p_len];
-      size_ = p_len;
-      capacity_ = p_len;
-    }
-
 };
 } //sp

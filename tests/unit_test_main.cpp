@@ -15,7 +15,7 @@
 int main()
 {
   sp::mpscllqueue<int> llq;
-  TestCmn();
+  TestString();
   //TestHashTable();
   return 0;
   
