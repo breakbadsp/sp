@@ -8,6 +8,7 @@
 #include "Types.hpp"
 #include "Hashing.hpp"
 #include "spinlock.hpp"
+#include "latch.hpp"
 
 #define ASSERT(exp) exp ? std::cout << "Test case " << #exp << " passed\n" : \
                           std::cout << "Test case " << #exp << " failed!\n";
@@ -24,8 +25,9 @@ void TestCmn()
   TestMoveAndForward();
   TestTypes();
   TestHashingFunctions();*/
-  TestThreadCreation();
-  TestLocks();
+  //TestThreadCreation();
+  //TestLocks();
+  TestLatch();
 }
 
 void TestTypes()
@@ -145,4 +147,50 @@ void TestLocks()
   delete new_thread1;
   delete new_thread2;
   std::cout << "Exiting main\n";
+}
+
+void TestLatch()
+{
+  std::cout << "Latch test started\n";
+  constexpr int total_threads = 10;
+  std::atomic_int num = 0;
+  std::vector<std::thread*> threads;
+  sp::latch latch(total_threads);
+  sp::latch latch2(total_threads);
+
+  for(int i =0; i < total_threads; ++i) {
+    std::string thread_num = "thread";
+    thread_num += std::to_string(i);
+    auto thread = sp::CreateAndRunThread(0, thread_num, 
+      [&latch, &latch2, &num, thread_name = thread_num] ()
+      {
+        int tnum = ++num;
+        std::cout << "Started running " << thread_name << " at " << tnum << '\n';
+        if(tnum != total_threads)
+        {
+          latch.decreament_count();
+          latch.wait();
+          std::cout << "released " << tnum << " thread\n";
+          latch2.decreament_count();
+        }
+        else
+        {
+          std::cout <<  "Started running " << thread_name << " at final " << tnum << '\n';
+          latch.decreament_count();
+          std::cout << "Started releasing other threads\n";
+
+          latch2.decreament_count();
+          latch2.wait();
+          std::cout << "Done releasing other threads\n";
+        }
+      }
+    );
+    if(thread)
+      threads.push_back(thread);
+  }
+
+  std::cout << "Main thread Waiting for workers to finish!\n";
+  for(auto* t: threads) {
+    t->join();
+  }
 }
