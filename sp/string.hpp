@@ -13,32 +13,24 @@ class string
 
   public:
     string() = default;
-
-    ~string() { delete [] buffer_; }
+    ~string() { 
+      delete [] buffer_; 
+    }
     
-    string(const char* p_c_style) 
-    {
+    string(const char* p_c_style) {
       Init(p_c_style);
     }
 
-    explicit string(decltype(nullptr))
-    {
-      string();
-    }
-
-    string(const string& p_other)
-    {
+    string(const string& p_other) {
       Init(p_other.buffer_);
     }
 
     explicit string(string&& p_other) :
-      buffer_(sp::move(p_other.buffer_))
-    {
+      buffer_(sp::move(p_other.buffer_)) {
       p_other.buffer_ = nullptr;
     }
 
-    string& operator=(const string& p_other)
-    {
+    string& operator=(const string& p_other) {
       if(this == &p_other)
         return *this;
 
@@ -46,19 +38,15 @@ class string
       return *this;
     }
 
-    string& operator=(string&& p_other)
-    {
+    string& operator=(string&& p_other) {
       if(this == &p_other)
         return *this;
       
       buffer_ = sp::move(p_other.buffer_);
+      size_ = sp::move(p_other.size_);
 
       p_other.buffer_ = nullptr;
-      return *this;
-    }
-
-    string& operator=(const char* p_c_style) {
-      Init(p_c_style);
+      p_other.size_ = 0;
       return *this;
     }
 
@@ -67,14 +55,16 @@ class string
       size_t new_len = p_other.get_size() + get_size() + 1;
       string new_string;
       new_string.buffer_ = new char[new_len];
+      new_string.size_ = new_len - 1;
 
       char* new_buffer_ptr = new_string.buffer_;
       strncpy(new_buffer_ptr, get_raw_buffer(), get_size());
       strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
+
       return new_string;
     }
 
-    string& operator+=(const string& p_other){
+    string& operator+=(const string& p_other) {
       if(p_other.get_size() <= 0)
         return *this;
 
@@ -84,6 +74,7 @@ class string
       strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
       delete [] buffer_;
       buffer_ = new_buffer_ptr;
+      size_ = new_size - 1;
       return *this;
     }
 
@@ -94,16 +85,17 @@ class string
 
     //getters
     const char* get_raw_buffer() const { return buffer_; }
-    unsigned int get_size() const { return strlen(buffer_); }
+    unsigned int get_size() const { return size_; }
 
 
   private:
     char* buffer_ {nullptr};
+    size_t size_ {0};
 
-    void Init(const char* p_c_style)
-    {
+    void Init(const char* p_c_style) {
       size_t len = strlen(p_c_style) + 1;
       buffer_ = new char[len];
+      size_ = len - 1;
       strcpy(buffer_, p_c_style);
     }
 };

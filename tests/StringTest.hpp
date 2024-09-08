@@ -21,5 +21,5 @@ void TestString()
   std::cout << test3 << '\n';
 
   const auto&& moved_string = sp::move(new_str);
-  std::cout << moved_string << " and moved from " << new_str << '\n';
+  std::cout << moved_string << '\n';
 }
