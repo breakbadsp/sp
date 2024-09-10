@@ -3,7 +3,7 @@ CXX = g++-12
 #CXX = g++
 #CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Werror -std=c++23 -I../sp/ -I../experiments/
+CXXFLAGS = -g -O3 -Werror -std=c++23 -I../sp/ -I../experiments/
 
 #Warning flags 
 # Pending Winfinite-recursion, 
@@ -19,20 +19,22 @@ CXXFLAGS += -Wall \
 
 #Instrumentation-Options flags
 # Pending -fsanitize=shadow-call-stack, -fstack-check
-CXXFLAGS += -fsanitize=thread \
-			#-fsanitize=undefined \
-			#-fsanitize=leak \
-			#-fsanitize-address-use-after-scope \
-			-fsanitize-recover=all \
-			-fno-omit-frame-pointer \
-			-fstack-protector-all \
+# CXXFLAGS += -fsanitize=thread
+CXXFLAGS += 	-fsanitize=undefined \
+		-fsanitize=address \
+		-fsanitize=leak \
+		-fsanitize-address-use-after-scope \
+		-fsanitize-recover=all \
+		-fno-omit-frame-pointer \
+		-fstack-protector-all \
 
-LDDFLAGS = 	-fsanitize=thread \
-		   	#-fsanitize=undefined \
-		   	#-fsanitize=leak \
-		   	#-fsanitize-address-use-after-scope \
-		   	-fsanitize-recover=all \
-			-fno-omit-frame-pointer \
+# LDDFLAGS = 	-fsanitize=thread 
+LDDFLAGS = 	-fsanitize=undefined \
+		-fsanitize=address \
+		-fsanitize=leak \
+		-fsanitize-address-use-after-scope \
+		-fsanitize-recover=all \
+		-fno-omit-frame-pointer
 		   
 
 CXXFLAGS += -fext-numeric-literals
@@ -51,7 +53,7 @@ HEADERS := $(wildcard *.h, wildcard *.hpp)
 #HEADERS += $(../sp/wildcard *.h, ../sp/wildcard *.hpp)
 
 $(OUTDIR)/%.o:	%.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -o $@ -c $< 
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 

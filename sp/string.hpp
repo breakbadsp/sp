@@ -81,7 +81,8 @@ class string
     }
 
     friend std::ostream& operator<< (std::ostream& p_os, const sp::string& p_string){
-      p_os << p_string.get_raw_buffer();
+      if(p_string.get_raw_buffer())
+        p_os << p_string.get_raw_buffer();
       return p_os;
     }
 
