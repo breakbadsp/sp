@@ -26,8 +26,10 @@ class string
     }
 
     explicit string(string&& p_other) :
-      buffer_(sp::move(p_other.buffer_)) {
+      buffer_(sp::move(p_other.buffer_))
+      ,size_(sp::move(p_other.size_)) {
       p_other.buffer_ = nullptr;
+      p_other.size_ = 0;
     }
 
     string& operator=(const string& p_other) {
