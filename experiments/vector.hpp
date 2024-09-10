@@ -123,7 +123,7 @@ class vector
         //or create our own type sp::option<T>
       }
 
-      return reinterpret_cast<T*>(buffer_)[p_index];
+      return *reinterpret_cast<T*>(buffer_ + (p_index * sizeof(T)) );
     }
 
     //getters
