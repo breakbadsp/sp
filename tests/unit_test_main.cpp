@@ -16,6 +16,7 @@ int main()
 {
   sp::mpscllqueue<int> llq;
   TestString();
+  TestVector();
   //TestHashTable();
   return 0;
   
@@ -27,7 +28,7 @@ int main()
   
   using namespace sp;
   std::vector<std::thread*> threads;
-  threads.emplace_back(CreateAndRunThread(1, "TestVectorPushBack", TestVectorPushBack));
+  threads.emplace_back(CreateAndRunThread(1, "TestVector", TestVector));
   threads.emplace_back(CreateAndRunThread(2, "TestListApis", TestListApis));
   threads.emplace_back(CreateAndRunThread(3, "TestString", TestString));
   threads.emplace_back(CreateAndRunThread(4, "TestSharedPtr", TestSharedPtr));

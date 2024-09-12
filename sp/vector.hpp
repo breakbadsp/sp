@@ -1,118 +1,134 @@
-#pragma once
-
-#include <memory>
+#include <utility>
+#include <cstdlib>
 #include <iostream>
 #include <cassert>
 
-#include "cmn.hpp"
 
-namespace sp{
+namespace sp {
 template<typename T>
-class vector
-{
-  public:
-    ~vector()
-    {
-      Clear();
+class vector {
+public:
+    vector() = default;
+    ~vector() { clear(); }
+
+    vector(size_t p_capacity) 
+    : capacity_(p_capacity)
+    , size_(0) {
+        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
     }
 
-    //getters
-    size_t size() { return size_; }
-    size_t capacity() { return capacity_; }
-
-    void Print()
-    {
-      std::cout << std::endl;
-      std::cout << "Printing vector of size=" << size_ << '\n';
-      for(size_t i = 0; i < size_; ++i)
-        std::cout << buffer_[i] << ", ";
-      std::cout << std::endl;
+    vector(const vector& p_rhs) 
+    : capacity_(p_rhs.capacity_)
+    , size_(p_rhs.size_) {
+        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
+        for(size_t i = 0; i < size_; ++i) {
+            new (slot(i)) T(*p_rhs.slot(i));
+        }
     }
 
-    void push_back(const T& p_data)
-    {
-      if(size_ == capacity_)
-      {
-        Reallocate();
-      }
-      buffer_[size_++] = p_data;
+    vector(vector&& p_rhs)
+    : buffer_(p_rhs.buffer_)
+    , capacity_(p_rhs.capacity_)
+    , size_(p_rhs.size_) {
+        p_rhs.buffer_ = nullptr;
+        p_rhs.capacity_ = 0;
+        p_rhs.size_ = 0;
     }
 
-    void pop_back()
-    {
-      if(size_ <= 0)
-        return;
-      --size_;
+    vector& operator=(const vector& p_rhs) {
+        if(this != &p_rhs) {
+            auto* new_buffer = reinterpret_cast<T*>(malloc(sizeof(T) * p_rhs.capacity_));
+            for(size_t i = 0; i < p_rhs.size_; ++i) {
+                new (&new_buffer[i]) T(*p_rhs.slot(i));
+            }
+            clear();
+            capacity_ = p_rhs.capacity_;
+            size_ = p_rhs.size_;
+            buffer_ = reinterpret_cast<unsigned char*>(new_buffer);
+        }
+        return *this;
     }
 
-    const T& back()
-    {
-      assert(size_ > 0);
-      return buffer_[size_ - 1];
+    vector& operator=(vector&& p_rhs) {
+        if(this != &p_rhs) {
+            clear();
+            buffer_ = p_rhs.buffer_;
+            capacity_ = p_rhs.capacity_;
+            size_ = p_rhs.size_;        
+            p_rhs.buffer_ = nullptr;
+            p_rhs.capacity_ = 0;
+            p_rhs.size_ = 0;
+        }
+        return *this;
     }
 
-    vector() : size_(0) ,capacity_(1)
-    {
-      buffer_  = new T[capacity_];
+    const T& operator[](size_t p_idx) const { return *slot(p_idx); }      
+    T& operator[](size_t p_idx) { return *slot(p_idx); }
+
+    void push_back(const T& p_rhs) {
+        if(size_ == capacity_) {
+            reallocate(capacity_ * 2);
+        }
+        new (slot(size_)) T(p_rhs);
+        ++size_;
     }
 
-    vector(const T& p_data) : size_(0), capacity_(1)
-    {
-      buffer_ = new T[capacity_];
-      buffer_[size_++] = p_data;
+    void push_back(T&& p_rhs) {
+        if(size_ >= capacity_) {
+            reallocate(capacity_ * 2);
+        }
+        new (slot(size_)) T(std::move(p_rhs));
+        ++size_;
     }
 
-    vector(const vector<T>& p_other) 
-    : size_(p_other.size_)
-      ,capacity_(p_other.capacity_)
+    T pop_back()
     {
-      for(size_t i = 0; i < capacity_; ++i)
-      {
-        buffer_[i] = new T(*p_other.buffer[i]);
-      }
+        assert(size_ > 0);
+        auto ele = std::move(*slot(size_-1));
+        slot(size_-1)->~T();
+        --size_;
+        return ele;
     }
 
-    vector(vector<T>&& p_other) 
-    : size_(sp::move(p_other.size_))
-      ,capacity_(sp::move(p_other.capacity_))
-    {
-      //TODO:: Add ForEach member function for this class
-      for(size_t i = 0; i < capacity_; ++i)
-      {
-        buffer_[i] = new T(sp::move(*p_other.buffer[i]));
-      } 
+    const T& back() const { return *slot(size_-1); }
+    T& back() { return *slot(size_-1); }
+
+    size_t size() const { return size_; }
+    size_t capacity() const { return capacity_; }
+
+private:
+    alignas(T) unsigned char* buffer_ {nullptr};
+    size_t capacity_ {0};
+    size_t size_ {0};
+
+    void reallocate(size_t p_new_cap) {
+        if(p_new_cap == 0) p_new_cap = 4;
+        T* new_buff = reinterpret_cast<T*>(malloc(sizeof(T) * p_new_cap));
+        for(size_t i = 0; i < size_; ++i) {
+            new (&new_buff[i]) T(*slot(i));
+        }
+
+        capacity_ = p_new_cap;
+        clear();
+        buffer_ = reinterpret_cast<unsigned char*>(new_buff);
     }
 
-  private:
-    void Clear()
-    {
-      delete [] buffer_;
-      buffer_ = nullptr;
-      size_ = 0;
-      capacity_ = 0;
+    T* slot(size_t idx ) {
+        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
     }
 
-    void Reallocate()
-    {
-      auto* old_buffer = buffer_;
-      auto old_capacity = capacity_;
-      
-      capacity_ *= 2;
-      buffer_ = new T[capacity_];
-      
-      for (size_t i = 0; i < old_capacity; ++i)
-      {
-        buffer_[i] = old_buffer[i];
-      }
-      delete [] old_buffer;
+    const T* slot(size_t idx ) const {
+        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
     }
 
-  private:
-    size_t size_;
-    size_t capacity_;
-    //TODO:: Add inline buffer for small vector size.
-    //TODO:: convert this into a smart pointer, preferably uniqueu pointer
-    T* buffer_;
 
-};//vector class
-};//sp namespace
+    void clear() {
+        for(size_t i = 0; i < size_; ++i) {
+            slot(i)->~T();
+        }
+        free(buffer_);
+        buffer_ = nullptr;
+    }
+
+};
+}
