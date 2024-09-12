@@ -1,181 +1,327 @@
+#include <utility>
+#include <cstdlib>
 #include <iostream>
-// vector
-// rule of 5 here
-//
-// push_back(T data)
-// T pop_back()
-// 
-// data 
-// buffer_ => the real data storage on heap
-// size_ = > number elements present
-// capacity_ => total available space on heap
-// 
-// size_ > capacity_ => reallocate the vector
-// reallocate(new_size)
+#include <cassert>
 
 
-namespace sp 
-{
+namespace sp {
 template<typename T>
-class vector 
-{
-  public:
-    //special member funcs
+class vector {
+public:
     vector() = default;
-    
+    ~vector() { clear(); }
+
     vector(size_t p_capacity) 
-    : size_(0)
-    , capacity_(0)
-    {
-      reallocate(p_capacity);
+    : capacity_(p_capacity)
+    , size_(0) {
+        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
     }
 
-    ~vector()
-    {
-      clear();
-    }
-
-    vector(const vector& p_rhs)
-    : size_ (p_rhs.size_)
-    , capacity_(p_rhs.capacity_)
-    {
-      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_rhs.capacity_ * sizeof(T)));
-      buffer_ = new_buffer;
-      for(size_t i = 0; i < p_rhs.size_; ++i) {
-        reinterpret_cast<T*>(buffer_)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
-      }
+    vector(const vector& p_rhs) 
+    : capacity_(p_rhs.capacity_)
+    , size_(p_rhs.size_) {
+        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
+        for(size_t i = 0; i < size_; ++i) {
+            new (slot(i)) T(*p_rhs.slot(i));
+        }
     }
 
     vector(vector&& p_rhs)
     : buffer_(p_rhs.buffer_)
-    , size_(std::move(p_rhs.size_))
-    , capacity_(std::move(p_rhs.capacity_))
-    {
-      p_rhs.buffer_ = nullptr;
-      p_rhs.size_ = 0;
-      p_rhs.capacity_ = 0;
+    , capacity_(p_rhs.capacity_)
+    , size_(p_rhs.size_) {
+        p_rhs.buffer_ = nullptr;
+        p_rhs.capacity_ = 0;
+        p_rhs.size_ = 0;
     }
 
-    vector& operator=(const vector& p_rhs)
-    {
-      if(this == &p_rhs)
+    vector& operator=(const vector& p_rhs) {
+        if(this != &p_rhs) {
+            auto* new_buffer = reinterpret_cast<T*>(malloc(sizeof(T) * p_rhs.capacity_));
+            for(size_t i = 0; i < p_rhs.size_; ++i) {
+                new (&new_buffer[i]) T(*p_rhs.slot(i));
+            }
+            clear();
+            capacity_ = p_rhs.capacity_;
+            size_ = p_rhs.size_;
+            buffer_ = reinterpret_cast<unsigned char*>(new_buffer);
+        }
         return *this;
-
-      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_rhs.capacity_ * sizeof(T)));
-      for(size_t i = 0; i < p_rhs.size_; ++i)
-      {
-        reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(p_rhs.buffer_)[i];
-      }
-
-      clear();
-      buffer_ = new_buffer;
-      size_ = p_rhs.size_;
-      capacity_ = p_rhs.capacity_;
-
-      return *this;
     }
 
-    vector& operator=(vector&& p_rhs)
-    {
-      if(this == &p_rhs)
+    vector& operator=(vector&& p_rhs) {
+        if(this != &p_rhs) {
+            clear();
+            buffer_ = p_rhs.buffer_;
+            capacity_ = p_rhs.capacity_;
+            size_ = p_rhs.size_;        
+            p_rhs.buffer_ = nullptr;
+            p_rhs.capacity_ = 0;
+            p_rhs.size_ = 0;
+        }
         return *this;
-
-      clear();
-      buffer_ = p_rhs.buffer_;
-      size_ = p_rhs.size_;
-      capacity_ = p_rhs.capacity_;
-
-      p_rhs.buffer_ = nullptr;
-      p_rhs.size_ = 0;
-      p_rhs.capacity_ = 0;
-
-      return *this;
     }
 
-    // methods/apis
-    void push_back(const T& p_data)
-    {
-      if(size_ >= capacity_)
-      {
-        reallocate(capacity_ == 0 ? 4 : capacity_ *  2);
-      }
+    const T& operator[](size_t p_idx) const { return *slot(p_idx); }      
+    T& operator[](size_t p_idx) { return *slot(p_idx); }
 
-      new (buffer_ + ((size_) * sizeof(T))) T(p_data);
-      ++size_;
-      std::cout << "pushed " << p_data << " at " << size_ - 1 << '\n';
+    void push_back(const T& p_rhs) {
+        if(size_ == capacity_) {
+            reallocate(capacity_ * 2);
+        }
+        new (slot(size_)) T(p_rhs);
+        ++size_;
+    }
+
+    void push_back(T&& p_rhs) {
+        if(size_ >= capacity_) {
+            reallocate(capacity_ * 2);
+        }
+        new (slot(size_)) T(std::move(p_rhs));
+        ++size_;
     }
 
     T pop_back()
     {
-      return reinterpret_cast<T*>(buffer_)[--size_];
+        assert(size_ > 0);
+        auto ele = std::move(*slot(size_-1));
+        slot(size_-1)->~T();
+        --size_;
+        return ele;
     }
 
-    T& at(size_t p_index)
-    {
-      if(p_index >= size_)
-      {
-        std::string error = "out of range index ";
-        error += std::to_string(p_index);
-        throw std::out_of_range {
-          error
-        };
-        //Or we can return std::optional
-        //or create our own type sp::option<T>
-      }
-
-      return *reinterpret_cast<T*>(buffer_ + (p_index * sizeof(T)) );
-    }
-
-    //getters
     size_t size() const { return size_; }
     size_t capacity() const { return capacity_; }
 
-  private:
-    //data members
-    alignas(T) unsigned char* buffer_ = {nullptr};
-    size_t size_ = 0;
-    size_t capacity_ = 0;
+private:
+    alignas(T) unsigned char* buffer_ {nullptr};
+    size_t capacity_ {0};
+    size_t size_ {0};
 
-
-  private:
-    //utility functions:
-    void reallocate(size_t p_new_capacity)
-    {
-      std::cout << "reallocating from " << capacity_ << " to " << p_new_capacity << '\n';
-      alignas(T) unsigned char* new_buffer = reinterpret_cast<unsigned char*>(std::malloc(p_new_capacity * sizeof(T)));
-      if(!new_buffer)
-        return;
-      
-      if(buffer_)
-      {
-        for(size_t i = 0; i < size_; ++i)
-        {
-          reinterpret_cast<T*>(new_buffer)[i] = reinterpret_cast<T*>(buffer_)[i];
+    void reallocate(size_t p_new_cap) {
+        if(p_new_cap == 0) p_new_cap = 4;
+        T* new_buff = reinterpret_cast<T*>(malloc(sizeof(T) * p_new_cap));
+        for(size_t i = 0; i < size_; ++i) {
+            new (&new_buff[i]) T(*slot(i));
         }
-        auto old_size = size_;
+
+        capacity_ = p_new_cap;
         clear();
-        size_ = old_size;
-      }
-
-      buffer_ = new_buffer;
-      capacity_ = p_new_capacity;
+        buffer_ = reinterpret_cast<unsigned char*>(new_buff);
     }
 
-    void clear()
-    {
-      if(buffer_)
-      {
-        for(size_t i = 0; i < size_; ++i)
-        {
-          reinterpret_cast<T*>(buffer_ + (i*sizeof(T)))->~T();
+    T* slot(size_t idx ) {
+        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
+    }
+
+    const T* slot(size_t idx ) const {
+        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
+    }
+
+
+    void clear() {
+        for(size_t i = 0; i < size_; ++i) {
+            slot(i)->~T();
         }
-      }
-      free(buffer_);
-      size_ = 0;
-      capacity_ = 0;
-      buffer_ = nullptr;
+        free(buffer_);
+        buffer_ = nullptr;
     }
+
 };
 }
 
+void print(sp::vector<int>& p_elems) {
+    for(size_t i = 0; i < p_elems.size(); ++i)
+        std::cout << p_elems[i] << ' ';
+    
+    std::cout << ": Printed vector \n";
+}
 
+struct Temp {
+    Temp() = default;
+    ~Temp() { delete ptr; }
+
+    Temp(const Temp& p_rhs) { 
+        if(ptr)
+            ptr = new int(*p_rhs.ptr);
+    }
+
+    Temp(Temp&& p_rhs)
+    : ptr(p_rhs.ptr) {
+        p_rhs.ptr = nullptr;
+    }
+
+    Temp& operator=(const Temp& p_rhs)
+    {
+        if(this != &p_rhs) {
+            delete ptr;
+            ptr = new int(*p_rhs.ptr);
+        }
+        return *this;
+    }
+
+    Temp& operator=(Temp&& p_rhs) {
+        if(this != &p_rhs) {
+            ptr = p_rhs.ptr;
+            p_rhs.ptr = nullptr;
+        }
+        return *this;
+    }
+
+    Temp(int p)
+    {
+        ptr = new int(p);
+    } 
+
+
+    int* ptr = nullptr;
+
+    friend std::ostream& operator<<(std::ostream& p_os, const Temp& p_rhs) {
+        if(p_rhs.ptr)
+            p_os << *p_rhs.ptr;
+        return p_os;
+    }
+};
+
+void print(sp::vector<Temp>& p_elems) {
+    for(size_t i = 0; i < p_elems.size(); ++i)
+        std::cout << p_elems[i] << ' ';
+    
+    std::cout << ": Printed vector \n";
+}
+
+
+void Test1()
+{
+    sp::vector<int> temp1;
+    print(temp1);
+
+    sp::vector<int> temp1_5(5);
+    temp1_5.push_back(1);
+    temp1_5.push_back(2);
+    temp1_5.push_back(3);
+    temp1_5.push_back(4);
+    temp1_5.push_back(5);
+    temp1_5.push_back(6);
+    temp1_5.push_back(7);
+    temp1_5.push_back(8);
+    temp1_5.push_back(9);
+    print(temp1_5);
+    auto ele = temp1_5.pop_back();
+    print(temp1_5);
+    std::cout << ele << '\n';
+    
+
+    sp::vector<int> temp2(temp1_5);
+    print(temp2);
+    sp::vector<int> temp4(std::move(temp1_5)); 
+    print(temp4);
+
+    sp::vector<int> temp3;
+    temp3 = temp2;
+    print(temp3);
+    sp::vector<int> temp5;
+    temp5 = std::move(temp2);    
+    print(temp5);
+}
+void Test2()
+{
+    sp::vector<Temp> temp1;
+    print(temp1);
+
+    sp::vector<Temp> temp1_5(5);
+    temp1_5.push_back(1);
+    temp1_5.push_back(2);
+    temp1_5.push_back(3);
+    temp1_5.push_back(4);
+    temp1_5.push_back(5);
+    temp1_5.push_back(6);
+    temp1_5.push_back(7);
+    temp1_5.push_back(8);
+    temp1_5.push_back(9);
+
+    Temp t1, t2, t3;
+    temp1_5.push_back(t1);
+    temp1_5.push_back(t2);
+    temp1_5.push_back(t3);
+
+
+    print(temp1_5);
+    auto ele = temp1_5.pop_back();
+    print(temp1_5);
+    std::cout << ele << '\n';
+    
+
+    sp::vector<Temp> temp2(temp1_5);
+    print(temp2);
+    sp::vector<Temp> temp4(std::move(temp1_5)); 
+    print(temp4);
+
+    sp::vector<Temp> temp3;
+    temp3 = temp2;
+    print(temp3);
+    sp::vector<Temp> temp5;
+    temp5 = std::move(temp2);    
+    print(temp5);
+}
+
+void Test3()
+{
+    sp::vector<Temp> temp1;
+    print(temp1);
+
+    sp::vector<Temp> temp1_5(5);
+    temp1_5.push_back(1);
+    temp1_5.push_back(2);
+    temp1_5.push_back(3);
+    temp1_5.push_back(4);
+    temp1_5.push_back(5);
+    temp1_5.push_back(6);
+    temp1_5.push_back(7);
+    temp1_5.push_back(8);
+    temp1_5.push_back(9);
+    
+    Temp t1, t2, t3;
+    temp1_5.push_back(t1);
+    temp1_5.push_back(t2);
+    temp1_5.push_back(t3);
+    
+    temp1_5.pop_back();
+    temp1_5.pop_back();
+    temp1_5.pop_back();
+    temp1_5.pop_back();
+    temp1_5.pop_back();
+    temp1_5.push_back(5);
+    temp1_5.push_back(6);
+    temp1_5.push_back(7);
+    temp1_5.push_back(8);
+    temp1_5.push_back(9);
+    temp1_5.push_back(10);
+    temp1_5.push_back(11);
+    temp1_5.push_back(12);
+    
+    print(temp1_5);
+    auto ele = temp1_5.pop_back();
+    print(temp1_5);
+    std::cout << ele << '\n';
+    
+
+    sp::vector<Temp> temp2(temp1_5);
+    print(temp2);
+    sp::vector<Temp> temp4(std::move(temp1_5)); 
+    print(temp4);
+
+    sp::vector<Temp> temp3;
+    temp3 = temp2;
+    print(temp3);
+    sp::vector<Temp> temp5;
+    temp5 = std::move(temp2);    
+    print(temp5);
+}
+
+int main()
+{
+   Test1();
+   Test2();
+   Test3();
+}
