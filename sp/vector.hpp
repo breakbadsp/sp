@@ -84,17 +84,22 @@ public:
     T pop_back()
     {
         assert(size_ > 0);
-        auto ele = std::move(*slot(size_-1));
-        slot(size_-1)->~T();
+        auto ele = std::move(*last());
+        last()->~T();
         --size_;
         return ele;
     }
 
-    const T& back() const { return *slot(size_-1); }
-    T& back() { return *slot(size_-1); }
+    const T& back() const { return *last(); }
+    T& back() { return *last(); }
 
     size_t size() const { return size_; }
     size_t capacity() const { return capacity_; }
+
+    T* data() { return reinterpret_cast<T*>(buffer_);  }
+    const T* data() const { return reinterpret_cast<T*>(buffer_);  }
+
+    bool empty() const { return size() == 0; }
 
 private:
     alignas(T) unsigned char* buffer_ {nullptr};
@@ -120,6 +125,9 @@ private:
     const T* slot(size_t idx ) const {
         return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
     }
+
+    const T* last() const { return slot(size_ - 1); }
+    T* last() { return slot(size_ - 1); }
 
 
     void clear() {
