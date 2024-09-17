@@ -72,8 +72,8 @@ class string
 
       const size_t new_size = get_size() + p_other.get_size() + 1;
       auto* new_buffer_ptr = new char[new_size];
-      strncpy(new_buffer_ptr, buffer_, get_size());
-      strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
+      strcpy(new_buffer_ptr, buffer_);
+      strcpy(new_buffer_ptr + get_size() - 1, p_other.buffer_);
       delete [] buffer_;
       buffer_ = new_buffer_ptr;
       size_ = new_size - 1;
