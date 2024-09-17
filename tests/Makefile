@@ -9,6 +9,7 @@ CXXFLAGS = -g -O3 -Werror -std=c++23 -I../sp/ -I../experiments/
 # Pending Winfinite-recursion, 
 CXXFLAGS += -Wall \
 			-Wextra \
+			-Werror \
 			-Wnull-dereference \
 			-Wshift-overflow \
 			-Wno-div-by-zero \
@@ -19,7 +20,7 @@ CXXFLAGS += -Wall \
 
 #Instrumentation-Options flags
 # Pending -fsanitize=shadow-call-stack, -fstack-check
-# CXXFLAGS += -fsanitize=thread
+#CXXFLAGS += -fsanitize=thread
 CXXFLAGS += 	-fsanitize=undefined \
 		-fsanitize=address \
 		-fsanitize=leak \
@@ -27,14 +28,16 @@ CXXFLAGS += 	-fsanitize=undefined \
 		-fsanitize-recover=all \
 		-fno-omit-frame-pointer \
 		-fstack-protector-all \
+		-fno-inline \
 
-# LDDFLAGS = 	-fsanitize=thread 
+#LDDFLAGS = 	-fsanitize=thread 
 LDDFLAGS = 	-fsanitize=undefined \
 		-fsanitize=address \
 		-fsanitize=leak \
 		-fsanitize-address-use-after-scope \
 		-fsanitize-recover=all \
-		-fno-omit-frame-pointer
+		-fno-omit-frame-pointer \
+		-fno-inline \
 		   
 
 CXXFLAGS += -fext-numeric-literals

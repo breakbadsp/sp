@@ -8,156 +8,79 @@
 
 namespace sp
 {
-template<typename T>
-class shared_ptr 
-{
-  public:
-    class shared_ptr_control_block
-    {
-      public:
-        shared_ptr_control_block() = default;
-
-        bool IncreaseRefCount() 
-        {
-          std::unique_lock ul(ref_count_mutex_);
-          //std::cout << "ref count before increase is " << ref_count_.load() << '\n';
-          if(ref_count_.load() <= 0)
-            return false;
-
-          ++ref_count_;
-          //std::cout << "ref count after increase is " << ref_count_.load() << '\n';
-          return true;
-        }
-
-        bool DecreaseRefCount() 
-        {
-          std::unique_lock ul(ref_count_mutex_);
-          //std::cout << "ref count before decrease is " << ref_count_.load() << '\n';
-          
-          //FIXME:: use compare_exchange_strong
-          if(ref_count_.load() <= 0)
-            return false;
-
-          --ref_count_;
-          //std::cout << "ref count after decrease is " << ref_count_.load() << '\n';
-          if(ref_count_.load() == 0)
-          {
-            return false;
-          }
-          return true;
-        }
-
-      private:
-        std::atomic_uint ref_count_ {1};
-        std::shared_mutex ref_count_mutex_;
-    };
-  public:
-    shared_ptr()
-    : raw_ptr_(nullptr)
-    , control_block_(nullptr) 
-    { }
-
-    shared_ptr(T* p_raw_ptr) 
-    : raw_ptr_(p_raw_ptr)
-    , control_block_(new shared_ptr_control_block()) 
-    { }
-
-    shared_ptr& operator=(decltype(nullptr))
-    {
-      if(control_block_ and !control_block_->DecreaseRefCount()) 
-      {
-        Clear();
-      }
-      raw_ptr_ = nullptr;
-      control_block_ = nullptr;
-      return *this;
-    }
-
-    ~shared_ptr()
-    {
-      if(control_block_ and !control_block_->DecreaseRefCount())
-      {
-        Clear();
-      }
-    }
-
-    //copy
-    shared_ptr(const shared_ptr& p_other) 
-    : raw_ptr_(p_other.raw_ptr_)
-    , control_block_(p_other.control_block_)
-    {
-      if(control_block_)
-        control_block_->IncreaseRefCount();
-    }
-
-    shared_ptr(shared_ptr&& p_other) 
-    : raw_ptr_(sp::move(p_other.raw_ptr_))
-    , control_block_(sp::move(p_other.control_block_))
-    {}
-
-    shared_ptr& operator=(const shared_ptr& p_other) 
-    {
-      if(this == &p_other)
-        return *this;
-
-      if(raw_ptr_) 
-      {
-        if(control_block_ and !control_block_->DecreaseRefCount())
-          Clear();
-      }
-      
-      //FIXME: solve memory leak of old resources
-      raw_ptr_ = p_other.raw_ptr_;
-      control_block_ = p_other.control_block_;
-
-      if(control_block_)
-        control_block_->IncreaseRefCount();
-        
-      return *this;
-    }
-
-    shared_ptr& operator=(shared_ptr&& p_other) 
-    {
-      if(this == &p_other)
-        return *this;
-
-      raw_ptr_ = sp::move(p_other.raw_ptr_);
-      control_block_ = sp::move(p_other.control_block_);
-  
-      return *this;
+template<class T>
+class shared_ptr {
+public:
+    shared_ptr() = default;
+    ~shared_ptr() {
+        dec_ref_count();
     }
     
-    shared_ptr& operator=(T* p_raw_ptr) 
-    {
-      if(raw_ptr_ == p_raw_ptr)
+    explicit shared_ptr(T* p_ptr) 
+    : raw_ptr_ (p_ptr) 
+    , cb_(new CB()) {
+        inc_ref_count();
+    }
+
+    shared_ptr(const shared_ptr& p_rhs)
+    : raw_ptr_(p_rhs.raw_ptr_) 
+    , cb_(p_rhs.cb_) {
+        inc_ref_count();
+    }
+
+    shared_ptr(shared_ptr&& p_rhs)
+    : raw_ptr_(p_rhs.raw_ptr_) 
+    , cb_(p_rhs.cb_) {
+        p_rhs.raw_ptr_ = nullptr;
+        p_rhs.cb_ = nullptr;
+    }
+
+    shared_ptr& operator=(const shared_ptr& p_rhs) {
+        if(this == &p_rhs)
+            return *this;
+
+        raw_ptr_ = p_rhs.raw_ptr_;
+        cb_ = p_rhs.cb_;
+        inc_ref_count();
+
         return *this;
-
-      if(raw_ptr_)
-      {
-        if(control_block_ and !control_block_->DecreaseRefCount())
-          Clear();
-      }
-      
-      raw_ptr_ = p_raw_ptr;
-      control_block_ = new shared_ptr_control_block();       
-      return *this;
     }
 
-    void reset(T* p_raw) 
-    {
-      if(raw_ptr_)
-      {
-        if(control_block_ and !control_block_->DecreaseRefCount())
-          Clear();
-      }
-      raw_ptr_ = p_raw;
-      control_block_ = new shared_ptr_control_block(); 
+    shared_ptr& operator=(shared_ptr&& p_rhs) {
+        if(this == &p_rhs)
+            return *this;
+        
+        raw_ptr_ = p_rhs.raw_ptr_;
+        cb_ = p_rhs.cb_;
+        p_rhs.raw_ptr_ = nullptr;
+        p_rhs.cb_ = nullptr;
+
+        return *this;
     }
 
+     T* operator->() { return get(); }
+    const T* operator->() const { return get(); }
 
-    const T* get() const { return raw_ptr_; }
+    T& operator*() { return *get(); }
+    const T& operator*() const { return *get(); }
+
     T* get() { return raw_ptr_; }
+    const T* get() const { return raw_ptr_; }
 
+    size_t use_count() const { return cb_->ref_count_.load(); }
+
+
+    void reset(T* p_ptr = nullptr) {
+        dec_ref_count();
+
+        raw_ptr_ = p_ptr;
+        if(raw_ptr_) {
+            cb_ = new CB();
+            inc_ref_count();
+        }
+    }
+
+    
     //with raw
     bool operator==(T* p_raw) const { return p_raw == raw_ptr_; }
     bool operator!=(T* p_raw) const { return p_raw != raw_ptr_; }
@@ -167,34 +90,29 @@ class shared_ptr
 
     bool operator==(const shared_ptr& p_other) const { return raw_ptr_ == p_other.raw_ptr_; }
     bool operator!=(const shared_ptr& p_other) const { return raw_ptr_ != p_other.raw_ptr_; }
-    
-    bool operator!() const { return raw_ptr_ == nullptr; }
+        
+    explicit operator bool() const { return raw_ptr_ != nullptr; }
 
-    T* operator->() { return get(); }
-    T operator*() { return *get(); }
-    
-    const T* operator->() const { return get(); }
-    const T& operator*() const { return *get(); }
 
-    explicit operator bool() { return raw_ptr_ != nullptr; }
+private:
+    struct CB {
+        std::atomic<size_t> ref_count_ {0};
+    };
 
-    //Move
+    T* raw_ptr_ {nullptr};
+    CB* cb_ {nullptr};
 
-  private:
-    T* raw_ptr_  {nullptr};
-    shared_ptr_control_block* control_block_;
+    void inc_ref_count() { cb_->ref_count_++; }
+    void dec_ref_count() {
+        if(raw_ptr_ == nullptr)
+            return;
 
-    void Clear()
-    {
-      //std::cout << "clearing shread_ptr\n";
-      if(std::is_unbounded_array_v<T>)// || std::is_bounded_array<T>)
-        delete [] raw_ptr_;
-      else
-        delete raw_ptr_;
-      raw_ptr_ = nullptr;
-      
-      delete control_block_;
-      control_block_ = nullptr;
+        if(--(cb_->ref_count_) == 0) {
+            delete raw_ptr_;
+            raw_ptr_ = nullptr;
+            delete cb_;
+            cb_ = nullptr;
+        }
     }
 };
 } //sp
