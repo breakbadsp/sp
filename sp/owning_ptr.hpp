@@ -12,10 +12,9 @@ class owning_ptr final
 {
 
   public:
-    owning_ptr() = default;
+    constexpr owning_ptr() = default;
 
-    ~owning_ptr() 
-    {
+    ~owning_ptr() {
       if(std::is_bounded_array_v<T> || std::is_unbounded_array_v<T>)
         delete [] raw_ptr_;
       else
@@ -23,7 +22,7 @@ class owning_ptr final
       raw_ptr_ = nullptr;
     }
 
-    owning_ptr(T* p_raw) : raw_ptr_(p_raw) {}
+    explicit owning_ptr(T* p_raw) : raw_ptr_(p_raw) {}
     
     //Delete copy
     owning_ptr(const owning_ptr&) = delete;
@@ -31,8 +30,7 @@ class owning_ptr final
     const owning_ptr& operator=(const owning_ptr&) const = delete;
 
     //Moves
-    owning_ptr(owning_ptr&& p_other) 
-    {
+    owning_ptr(owning_ptr&& p_other) noexcept {
       
       if(&p_other == this)
         return;
@@ -41,8 +39,7 @@ class owning_ptr final
       p_other.raw_ptr_ = nullptr;
     }
 
-    owning_ptr& operator=(owning_ptr&& p_other)
-    {
+    owning_ptr& operator=(owning_ptr&& p_other) noexcept {
       
       if(&p_other == this)
         return *this;
@@ -61,33 +58,29 @@ class owning_ptr final
 
     T operator[](size_t p_index) { return raw_ptr_[p_index]; }
 
-    void reset(owning_ptr&& p_other) 
-    {
+    void reset(owning_ptr&& p_other) noexcept {
       delete raw_ptr_;
       raw_ptr_ = sp::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
     }
 
-    void reset(T* p_raw) 
-    {
+    void reset(T* p_raw) noexcept {
       delete raw_ptr_;
       raw_ptr_ = p_raw;
     }
 
-    void reset(decltype(nullptr)) 
-    {
+    void reset(decltype(nullptr)) noexcept {
       delete raw_ptr_;
     }
 
-    T* release() 
-    {
+    T* release() noexcept {
       auto* temp = raw_ptr_;
       raw_ptr_ = nullptr;
       return temp;
     }
 
-    const T* get() const { return raw_ptr_; }
-    T* get() { return raw_ptr_; }
+    const T* get() const noexcept { return raw_ptr_; }
+    T* get() noexcept { return raw_ptr_; }
 
     //with raw
     bool operator==(T* p_raw) { return p_raw == raw_ptr_; }
@@ -99,7 +92,7 @@ class owning_ptr final
     bool operator==(const owning_ptr& p_other) { return raw_ptr_ == p_other.raw_ptr_; }
     bool operator!=(const owning_ptr& p_other) { return raw_ptr_ != p_other.raw_ptr_; }
 
-    T* operator->() { return get(); }
+    T* operator->() noexcept { return get(); }
     T operator*() { return *get(); }
 
     explicit operator bool() { return raw_ptr_ != nullptr; }

@@ -12,7 +12,7 @@ class string
 {
 
   public:
-    string() = default;
+    constexpr string() = default;
     ~string() { 
       delete [] buffer_; 
     }
@@ -21,13 +21,13 @@ class string
       Init(p_c_style);
     }
 
-    string(const string& p_other) {
+    explicit string(const string& p_other) {
       Init(p_other.buffer_);
     }
 
-    explicit string(string&& p_other) :
-      buffer_(sp::move(p_other.buffer_))
-      ,size_(sp::move(p_other.size_)) {
+    string(string&& p_other) noexcept
+    : buffer_(sp::move(p_other.buffer_))
+    , size_(sp::move(p_other.size_)) {
       p_other.buffer_ = nullptr;
       p_other.size_ = 0;
     }
@@ -40,7 +40,7 @@ class string
       return *this;
     }
 
-    string& operator=(string&& p_other) {
+    string& operator=(string&& p_other) noexcept {
       if(this == &p_other)
         return *this;
       
@@ -60,7 +60,7 @@ class string
       new_string.size_ = new_len - 1;
 
       char* new_buffer_ptr = new_string.buffer_;
-      strncpy(new_buffer_ptr, get_raw_buffer(), get_size());
+      strncpy(new_buffer_ptr, c_str(), get_size());
       strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
 
       return new_string;
@@ -81,14 +81,14 @@ class string
     }
 
     friend std::ostream& operator<< (std::ostream& p_os, const sp::string& p_string){
-      if(p_string.get_raw_buffer())
-        p_os << p_string.get_raw_buffer();
+      if(p_string.c_str())
+        p_os << p_string.c_str();
       return p_os;
     }
 
     //getters
-    const char* get_raw_buffer() const { return buffer_; }
-    unsigned int get_size() const { return size_; }
+    const char* c_str() const noexcept { return buffer_; }
+    unsigned int get_size() const noexcept { return size_; }
 
 
   private:

@@ -11,13 +11,13 @@ namespace sp
 template<class T>
 class shared_ptr {
 public:
-    shared_ptr() = default;
+    constexpr shared_ptr() = default;
     ~shared_ptr() {
         dec_ref_count();
     }
     
-    explicit shared_ptr(T* p_ptr) 
-    : raw_ptr_ (p_ptr) 
+    explicit shared_ptr(T* p_ptr)
+    : raw_ptr_ (p_ptr)
     , cb_(new CB()) {
         inc_ref_count();
     }
@@ -28,7 +28,7 @@ public:
         inc_ref_count();
     }
 
-    shared_ptr(shared_ptr&& p_rhs)
+    shared_ptr(shared_ptr&& p_rhs) noexcept
     : raw_ptr_(p_rhs.raw_ptr_) 
     , cb_(p_rhs.cb_) {
         p_rhs.raw_ptr_ = nullptr;
@@ -46,7 +46,7 @@ public:
         return *this;
     }
 
-    shared_ptr& operator=(shared_ptr&& p_rhs) {
+    shared_ptr& operator=(shared_ptr&& p_rhs) noexcept {
         if(this == &p_rhs)
             return *this;
         
@@ -58,14 +58,14 @@ public:
         return *this;
     }
 
-     T* operator->() { return get(); }
-    const T* operator->() const { return get(); }
+     T* operator->() noexcept { return get(); }
+    const T* operator->() const noexcept { return get(); }
 
     T& operator*() { return *get(); }
     const T& operator*() const { return *get(); }
 
-    T* get() { return raw_ptr_; }
-    const T* get() const { return raw_ptr_; }
+    T* get() noexcept { return raw_ptr_; }
+    const T* get() const noexcept { return raw_ptr_; }
 
     size_t use_count() const { return cb_->ref_count_.load(); }
 
@@ -85,14 +85,13 @@ public:
     bool operator==(T* p_raw) const { return p_raw == raw_ptr_; }
     bool operator!=(T* p_raw) const { return p_raw != raw_ptr_; }
 
-    bool operator==(std::nullptr_t p_null) const { return p_null == raw_ptr_; }
-    bool operator!=(std::nullptr_t p_null) const { return p_null != raw_ptr_; }
+    constexpr bool operator==(std::nullptr_t p_null) const { return p_null == raw_ptr_; }
+    constexpr bool operator!=(std::nullptr_t p_null) const { return p_null != raw_ptr_; }
 
     bool operator==(const shared_ptr& p_other) const { return raw_ptr_ == p_other.raw_ptr_; }
     bool operator!=(const shared_ptr& p_other) const { return raw_ptr_ != p_other.raw_ptr_; }
         
     explicit operator bool() const { return raw_ptr_ != nullptr; }
-
 
 private:
     struct CB {
@@ -104,15 +103,12 @@ private:
 
     void inc_ref_count() { cb_->ref_count_++; }
     void dec_ref_count() {
-        if(raw_ptr_ == nullptr)
-            return;
-
-        if(--(cb_->ref_count_) == 0) {
+        if(cb_ && --(cb_->ref_count_) == 0) {
             delete raw_ptr_;
-            raw_ptr_ = nullptr;
             delete cb_;
-            cb_ = nullptr;
         }
+        raw_ptr_ = nullptr;
+        cb_ = nullptr;
     }
 };
 } //sp

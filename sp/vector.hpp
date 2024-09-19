@@ -8,7 +8,7 @@ namespace sp {
 template<typename T>
 class vector {
 public:
-    vector() = default;
+    constexpr vector() = default;
     ~vector() { clear(); }
 
     vector(size_t p_capacity) 
@@ -26,7 +26,7 @@ public:
         }
     }
 
-    vector(vector&& p_rhs)
+    vector(vector&& p_rhs) noexcept
     : buffer_(p_rhs.buffer_)
     , capacity_(p_rhs.capacity_)
     , size_(p_rhs.size_) {
@@ -49,7 +49,7 @@ public:
         return *this;
     }
 
-    vector& operator=(vector&& p_rhs) {
+    vector& operator=(vector&& p_rhs) noexcept {
         if(this != &p_rhs) {
             clear();
             buffer_ = p_rhs.buffer_;
@@ -81,8 +81,7 @@ public:
         ++size_;
     }
 
-    T pop_back()
-    {
+    T pop_back() {
         assert(size_ > 0);
         auto ele = std::move(*last());
         last()->~T();
@@ -93,13 +92,13 @@ public:
     const T& back() const { return *last(); }
     T& back() { return *last(); }
 
-    size_t size() const { return size_; }
-    size_t capacity() const { return capacity_; }
+    size_t size() const noexcept { return size_; }
+    size_t capacity() const noexcept { return capacity_; }
 
     T* data() { return reinterpret_cast<T*>(buffer_);  }
     const T* data() const { return reinterpret_cast<T*>(buffer_);  }
 
-    bool empty() const { return size() == 0; }
+    bool empty() const noexcept { return size() == 0; }
 
 private:
     alignas(T) unsigned char* buffer_ {nullptr};
@@ -137,6 +136,5 @@ private:
         free(buffer_);
         buffer_ = nullptr;
     }
-
 };
 }

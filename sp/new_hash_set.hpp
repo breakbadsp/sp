@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cassert>
+#include "Types.hpp"
+
 class MyHashSet {
 public:
     static constexpr double load_fact = 0.5;
     static constexpr bool debug = false;
-    MyHashSet() = default;
+    constexpr MyHashSet() = default;
     
     bool add(int key) {
         if(size_ >= (load_fact * capacity_)) {
@@ -86,10 +89,10 @@ private:
     };
 
     Node* store_ = nullptr;
-    size_t size_ = 0;
-    size_t capacity_ = 0;
+    sp::size_t size_ = 0;
+    sp::size_t capacity_ = 0;
 
-    constexpr void rehash(size_t new_cap) {
+    constexpr void rehash(sp::size_t new_cap) {
         if(new_cap == 0)
             new_cap = 2;
         Node* new_store = (Node*) new Node[new_cap];
@@ -101,7 +104,7 @@ private:
             return;
         }
         
-        for(size_t i = 0; i < capacity_; ++i) {
+        for(sp::size_t i = 0; i < capacity_; ++i) {
             Node* old_ele = (store_ + i);
             if(old_ele->state == Node::State::Allocated) {
                 int new_hash = old_ele->ele % new_cap;

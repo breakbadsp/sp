@@ -15,8 +15,8 @@
 int main()
 {
   sp::mpscllqueue<int> llq;
-  //TestString();
-  //TestVector();
+  TestString();
+  TestVector();
   //TestHashTable();
     
   std::cout << "sp::shared_ptr test start!\n";
