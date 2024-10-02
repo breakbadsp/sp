@@ -14,13 +14,13 @@ public:
     vector(size_t p_capacity) 
     : capacity_(p_capacity)
     , size_(0) {
-        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
+        buffer_ = reinterpret_cast<T*>(malloc(sizeof(T) * capacity_));
     }
 
     vector(const vector& p_rhs) 
     : capacity_(p_rhs.capacity_)
     , size_(p_rhs.size_) {
-        buffer_ = reinterpret_cast<unsigned char*>(malloc(sizeof(T) * capacity_));
+        buffer_ = reinterpret_cast<T*>(malloc(sizeof(T) * capacity_));
         for(size_t i = 0; i < size_; ++i) {
             new (slot(i)) T(*p_rhs.slot(i));
         }
@@ -44,7 +44,7 @@ public:
             clear();
             capacity_ = p_rhs.capacity_;
             size_ = p_rhs.size_;
-            buffer_ = reinterpret_cast<unsigned char*>(new_buffer);
+            buffer_ = reinterpret_cast<T*>(new_buffer);
         }
         return *this;
     }
@@ -101,7 +101,7 @@ public:
     bool empty() const noexcept { return size() == 0; }
 
 private:
-    alignas(T) unsigned char* buffer_ {nullptr};
+    T* buffer_ = nullptr;
     size_t capacity_ {0};
     size_t size_ {0};
 
@@ -114,15 +114,15 @@ private:
 
         capacity_ = p_new_cap;
         clear();
-        buffer_ = reinterpret_cast<unsigned char*>(new_buff);
+        buffer_ = reinterpret_cast<T*>(new_buff);
     }
 
     T* slot(size_t idx ) {
-        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
+        return reinterpret_cast<T*>(buffer_ + idx);
     }
 
     const T* slot(size_t idx ) const {
-        return reinterpret_cast<T*>(buffer_ + (sizeof(T) * idx));
+        return reinterpret_cast<T*>(buffer_ + idx);
     }
 
     const T* last() const { return slot(size_ - 1); }
