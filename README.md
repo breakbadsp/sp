@@ -17,7 +17,6 @@ Global TODO:
 			- Add short string optimization
 		8. sp::vector
 			- Add short vector optimization
-	TODO::
 		8. sp::move
 		9. sp::set
 		10. sp::unordered_map
@@ -26,6 +25,7 @@ Global TODO:
 		12. sp::array
 			- Add short array optimization
 		
+	TODO::
 		
 	2. Build trading engine using modern c++
 	3. Build trading engine using RUST
