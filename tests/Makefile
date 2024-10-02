@@ -1,7 +1,3 @@
-#Set CXX as a env variable
-CXX = g++-12
-#CXX = g++
-#CXX = clang++
 LIBS = -lpthread
 CXXFLAGS = -g -O3 -Werror -std=c++23 -I../sp/ -I../experiments/
 
@@ -40,8 +36,8 @@ LDDFLAGS = 	-fsanitize=undefined \
 		-fno-inline \
 		   
 
-CXXFLAGS += -fext-numeric-literals
-LDDFLAGS += -fext-numeric-literals
+#CXXFLAGS += -fext-numeric-literals #conditional for g++ and not for clang
+#LDDFLAGS += -fext-numeric-literals
 
 TARGET = unit_test
 OUTDIR = ../output
