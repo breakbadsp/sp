@@ -10,7 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <condition_variable>
-#include <shared_mutex>
+#include <mutex>
 #include <string>
 
 namespace sp
@@ -74,7 +74,7 @@ class mpscllqueue
     std::vector<T> store_ {MAX_QUEUE_SIZE + UNUSED_QUEUE_BUFFER};
     std::atomic<size_t> read_index_ {0};
     std::atomic<size_t> write_index_ {0};
-    std::shared_mutex mutex_;
+    std::mutex mutex_;
     std::condition_variable cv_;
 };
 }//namespace sp
