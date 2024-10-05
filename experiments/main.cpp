@@ -75,7 +75,7 @@ void print(sp::vector<T>& p_vec)
 
 
 
-int main()
+/*int main()
 {
   std::cout << "======== vector default construction and push :================\n";
   sp::vector<int> nums;
@@ -136,4 +136,4 @@ int main()
   sp::vector<Test> tests5;
   tests5 = std::move(tests4);
   std::cout << "vector move assignment end.\n";
-}
+}*/

@@ -1,9 +1,5 @@
-#Set CXX as a env variable
-CXX = g++-11
-#CXX = g++
-#CXX = clang++
 LIBS = -lpthread
-CXXFLAGS = -g -O2 -Werror -std=c++23 -I../sp/
+CXXFLAGS = -g -O3 -Werror -std=c++23 -I../sp/
 
 #Warning flags 
 # Pending Winfinite-recursion, 
@@ -26,6 +22,7 @@ CXXFLAGS += -fsanitize=address \
 			-fsanitize-recover=all \
 			-fno-omit-frame-pointer \
 			-fstack-protector-all \
+			-Wno-float-equal \
 
 LDDFLAGS = 	-fsanitize=address \
 		   	-fsanitize=undefined \
