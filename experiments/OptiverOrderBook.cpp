@@ -10,6 +10,8 @@ using Price = double;
 using Symbol = std::string;
 using OrderId = int32_t;
 
+constexpr bool debug = false;
+
 struct Order {
   enum class Side { Buy = 1, Sell };
   OrderId id_;
@@ -48,6 +50,26 @@ class OrderBook {
       volume_ += p_order.qty_;
     }
 
+    void FillQty(Qty& rem_qty, std::vector<Order>& p_matched) {
+      for(auto i = orders_.begin(); rem_qty > 0 && i != orders_.end(); ++i) {  
+        p_matched.push_back(*i);
+        if(debug) std::cout << "matching order found: " << i->id_  << ", total orders matched:" 
+          << p_matched.size() << '\n';
+        if (i->qty_ < rem_qty) {
+          volume_ -= i->qty_;  
+          rem_qty -= i->qty_;
+          i = orders_.erase(i);
+          continue;
+        }
+
+        volume_ -= i->qty_;
+        i->qty_ -= rem_qty;
+        if (i->qty_ == 0) i = orders_.erase(i);
+        rem_qty = 0;
+        break;
+      }
+    }
+
     Qty get_volume() const { return volume_; }
 
     Price price_;
@@ -57,15 +79,22 @@ class OrderBook {
 
   Exec AddOrder(const Order& p_order) {
     [[maybe_unused]] Qty unfilled_qty = p_order.qty_;
-    std::vector<Order> matched_orders;
+    
     Exec exec_re;
     if (MatchOrder(p_order, unfilled_qty, exec_re.matched_ords_)) {
-      exec_re.ostat_ = unfilled_qty == 0 ? Exec::OrderState::Filled : Exec::OrderState::Part;
-      exec_re.exec_qty_ = p_order.qty_ - unfilled_qty;;
-      exec_re.matched_ords_ = std::move(matched_orders);
+      
+      exec_re.ostat_ = unfilled_qty == 0 ? Exec::OrderState::Filled 
+                                         : Exec::OrderState::Part;
+      exec_re.exec_qty_ = p_order.qty_ - unfilled_qty;
 
-      std::cout << "New Order " << p_order.id_ << " filled with remaining qty " << unfilled_qty << 
-        ", filled: " << exec_re.exec_qty_ << '\n';
+      if(debug) std::cout << "New Order " << p_order.id_ << " filled with remaining qty " 
+        << unfilled_qty << ", filled: " << exec_re.exec_qty_
+        << " bid:" << get_bid() << ", ask:" << get_ask() << '\n';
+
+      if(debug) std::cout << "Matched order ids: ";
+      for(auto order: exec_re.matched_ords_)
+        if(debug) std::cout << order.id_  << ", price:" << order.price_ << ' ';
+      if(debug) std::cout << '\n';
         
       if(exec_re.ostat_  == Exec::OrderState::Filled)
         return exec_re;
@@ -76,6 +105,7 @@ class OrderBook {
       return exec_re;
     }
 
+    if(debug) std::cout << "New Order " << p_order.id_ << " added, bid:" << get_bid() << ", ask:" << get_ask() << '\n';
     StoreOrder(p_order);
     exec_re.ostat_ = Exec::OrderState::Ack;
     return exec_re;
@@ -126,86 +156,65 @@ class OrderBook {
   }
 
   bool MatchOrder(const Order& p_order, Qty& rem_qty,
-                  std::vector<Order>& p_matched) {
+                  std::vector<Order>& p_matched) 
+  {
+    if(debug) std::cout << "Matching order: " << p_order.id_ << ", Price " << p_order.price_ << '\n';
+    std::vector<Level>& opp_levels = p_order.side_ == Order::Side::Sell ? bids_ : asks_;
+
+    if (opp_levels.empty()) {
+      if(debug) std::cout << "Empty opp level \n";
+      return false;
+    }
 
     switch (p_order.side_) {
       case Order::Side::Sell: {
-        if (bids_.empty() || get_bid() < p_order.price_) [[unlikely]]
+        if (get_bid() < p_order.price_) {
+          if(debug) std::cout << "bid:" << get_bid() << " is less than sell price:" << p_order.price_  <<  "\n";
           return false;
-
-        auto itr = bids_.rbegin();
-        while (rem_qty > 0 && itr != bids_.rend() &&
-               itr->price_ >= p_order.price_) {
-
-          for (auto i = itr->orders_.begin();
-               rem_qty > 0 && i != itr->orders_.end(); ++i) {
-            p_matched.push_back(*i);
-            if (i->qty_ < rem_qty) {
-              itr->volume_ -= i->qty_;  
-              rem_qty -= i->qty_;
-              ltp_ = i->price_;
-              i = itr->orders_.erase(i);
-              continue;
-            }
-
-            itr->volume_ -= i->qty_;
-            i->qty_ -= rem_qty;
-            ltp_ = i->price_;
-            if (i->qty_ == 0) i = itr->orders_.erase(i);
-            rem_qty = 0;
-            
-            break;
-          }
-
-          if(itr->volume_ == 0 && itr->orders_.empty()) {
-              bids_.pop_back();
-              itr = bids_.rbegin();
-              continue;
-          }
-          ++itr;
         }
-        return true;
       }
+      break;
 
       case Order::Side::Buy: {
-        if (asks_.empty() || get_ask() > p_order.price_) [[unlikely]]
+        if (get_ask() > p_order.price_) {
+          if(debug) std::cout << "ask:" << get_ask() << " is greater than buy price:" << p_order.price_  <<  "\n";
           return false;
-
-        auto itr = asks_.rbegin();
-        while (rem_qty > 0 && itr != asks_.rend() &&
-               itr->price_ <= p_order.price_) {
-
-          for (auto i = itr->orders_.begin();
-               rem_qty > 0 && i != itr->orders_.end(); ++i) {
-              
-            p_matched.push_back(*i);
-            if (i->qty_ < rem_qty) {
-              itr->volume_ -= i->qty_;  
-              rem_qty -= i->qty_;
-              ltp_ = i->price_;
-              i = itr->orders_.erase(i);
-              continue;
-            }
-
-            itr->volume_ -= i->qty_;
-            i->qty_ -= rem_qty;
-            ltp_ = i->price_;
-            if (i->qty_ == 0) i = itr->orders_.erase(i);
-            rem_qty = 0;
-            break;
-          }
-
-          if(itr->volume_ == 0 && itr->orders_.empty()) {
-              asks_.pop_back();
-              itr = asks_.rbegin();
-              continue;
-          }
-          ++itr;
         }
-        return true;
       }
+      break;
     }
-    return false;
+
+    auto itr = opp_levels.rbegin();
+    while (rem_qty > 0 && 
+           itr != opp_levels.rend() ) 
+    {
+      bool finished = false;
+      switch (p_order.side_) {
+        case Order::Side::Sell:
+          if(itr->price_ < p_order.price_)
+            finished = true;
+        break;
+        
+        case Order::Side::Buy:
+          if(itr->price_ > p_order.price_)
+            finished = true;
+        break;
+      }
+
+      if(finished)
+        break;
+
+      itr->FillQty(rem_qty, p_matched);
+      ltp_ = itr->price_;
+      if(itr->volume_ == 0 || itr->orders_.empty()) {
+          opp_levels.pop_back();
+          itr = opp_levels.rbegin();
+          continue;
+      }
+      ++itr;
+    }
+    if(debug) std::cout << "total orders matched: " << p_matched.size() <<'\n';
+    return true;
   }
 
   Price get_ask() const { return asks_.empty() ? 0.0 : asks_.back().price_; }
@@ -273,14 +282,9 @@ int main() {
   auto exec1 = book.AddOrder(Order{OrderId{27}, Qty{25}, Price{100.5},
                                     Symbol{"GOOG"}, Order::Side::Buy});
   assert(exec1.ostat_ == OrderBook::Exec::OrderState::Filled);
-  std::cout << exec1.exec_qty_ << " filled.\n" ;
   assert(exec1.exec_qty_ == 25);
-  assert(book.get_bid() == 99);
   assert(book.get_ask() == 101);
   assert(book.get_ltp() == 100.5);
-
-
-
-
-  std::cout << "Testing Order book finished\n";
+  assert(book.get_bid() == 99);
+  if(debug) std::cout << "Testing Order book finished\n";
 }
