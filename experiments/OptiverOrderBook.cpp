@@ -10,7 +10,7 @@ using Price = double;
 using Symbol = std::string;
 using OrderId = int32_t;
 
-constexpr bool debug = false;
+constexpr bool debug = true;
 
 struct Order {
   enum class Side { Buy = 1, Sell };
@@ -41,6 +41,9 @@ class OrderBook {
   struct Level {
     Level(const Order& p_order)
         : price_(p_order.price_), volume_(p_order.qty_) {
+
+      std::cout << "Added order " << p_order.id_ << "@" << price_ <<  ", volume: " 
+        << volume_ << '\n';
       orders_.push_back(p_order);
     }
 
@@ -48,13 +51,16 @@ class OrderBook {
       assert(p_order.price_ == price_);
       orders_.push_back(p_order);
       volume_ += p_order.qty_;
+      std::cout << "Added order " << p_order.id_ << "@" << price_ <<  ", volume: " 
+        << volume_ << '\n';
     }
 
     void FillQty(Qty& rem_qty, std::vector<Order>& p_matched) {
-      for(auto i = orders_.begin(); rem_qty > 0 && i != orders_.end(); ++i) {  
+      for(auto i = orders_.begin(); rem_qty > 0 && i != orders_.end();) {  
         p_matched.push_back(*i);
-        if(debug) std::cout << "matching order found: " << i->id_  << ", total orders matched:" 
-          << p_matched.size() << '\n';
+        /*if(debug) std::cout << "matching order found: " << i->id_ << " qty: " << i->qty_ 
+          << ", total orders matched:" 
+          << p_matched.size() << ", rem_qty: " << rem_qty <<  ", volume left:" << volume_ << '\n';*/
         if (i->qty_ < rem_qty) {
           volume_ -= i->qty_;  
           rem_qty -= i->qty_;
@@ -64,7 +70,10 @@ class OrderBook {
 
         volume_ -= i->qty_;
         i->qty_ -= rem_qty;
-        if (i->qty_ == 0) i = orders_.erase(i);
+        if (i->qty_ == 0) 
+          i = orders_.erase(i);
+        else
+          ++i;
         rem_qty = 0;
         break;
       }
@@ -105,7 +114,7 @@ class OrderBook {
       return exec_re;
     }
 
-    if(debug) std::cout << "New Order " << p_order.id_ << " added, bid:" << get_bid() << ", ask:" << get_ask() << '\n';
+    //if(debug) std::cout << "New Order " << p_order.id_ << " added, bid:" << get_bid() << ", ask:" << get_ask() << '\n';
     StoreOrder(p_order);
     exec_re.ostat_ = Exec::OrderState::Ack;
     return exec_re;
@@ -158,18 +167,18 @@ class OrderBook {
   bool MatchOrder(const Order& p_order, Qty& rem_qty,
                   std::vector<Order>& p_matched) 
   {
-    if(debug) std::cout << "Matching order: " << p_order.id_ << ", Price " << p_order.price_ << '\n';
+    //if(debug) std::cout << "Matching order: " << p_order.id_ << ", Price " << p_order.price_ << '\n';
     std::vector<Level>& opp_levels = p_order.side_ == Order::Side::Sell ? bids_ : asks_;
 
     if (opp_levels.empty()) {
-      if(debug) std::cout << "Empty opp level \n";
+      //if(debug) std::cout << "Empty opp level \n";
       return false;
     }
 
     switch (p_order.side_) {
       case Order::Side::Sell: {
         if (get_bid() < p_order.price_) {
-          if(debug) std::cout << "bid:" << get_bid() << " is less than sell price:" << p_order.price_  <<  "\n";
+          //if(debug) std::cout << "bid:" << get_bid() << " is less than sell price:" << p_order.price_  <<  "\n";
           return false;
         }
       }
@@ -177,7 +186,7 @@ class OrderBook {
 
       case Order::Side::Buy: {
         if (get_ask() > p_order.price_) {
-          if(debug) std::cout << "ask:" << get_ask() << " is greater than buy price:" << p_order.price_  <<  "\n";
+          //if(debug) std::cout << "ask:" << get_ask() << " is greater than buy price:" << p_order.price_  <<  "\n";
           return false;
         }
       }
@@ -206,6 +215,9 @@ class OrderBook {
 
       itr->FillQty(rem_qty, p_matched);
       ltp_ = itr->price_;
+      std::cout << "Search in level " << itr->price_ << "---@addr:" << &(itr->orders_)
+        << "---for order:" << p_order.id_ << " is done, left to match:" << rem_qty
+        << " left in level " << itr->volume_ <<  '\n';
       if(itr->volume_ == 0 || itr->orders_.empty()) {
           opp_levels.pop_back();
           itr = opp_levels.rbegin();
@@ -247,6 +259,12 @@ int main() {
   assert(book.get_bid() == 99);
   book.AddOrder(Order{OrderId{15}, Qty{15}, Price{99.5}, Symbol{"GOOG"},
                       Order::Side::Buy});
+  book.AddOrder(Order{OrderId{151}, Qty{15}, Price{99.5}, Symbol{"GOOG"},
+                      Order::Side::Buy});
+  book.AddOrder(Order{OrderId{152}, Qty{15}, Price{99.5}, Symbol{"GOOG"},
+                      Order::Side::Buy});
+  book.AddOrder(Order{OrderId{153}, Qty{15}, Price{99.5}, Symbol{"GOOG"},
+                      Order::Side::Buy});  
   assert(book.get_bid() == 99.5);
 
   book.AddOrder(Order{OrderId{21}, Qty{21}, Price{101}, Symbol{"GOOG"},
@@ -271,13 +289,13 @@ int main() {
   assert(book.get_ask() == 100.5);
   assert(book.get_bid() == 99.5);
 
-  auto exec = book.AddOrder(Order{OrderId{26}, Qty{15}, Price{99.5},
+  auto exec = book.AddOrder(Order{OrderId{26}, Qty{100}, Price{98},
                                     Symbol{"GOOG"}, Order::Side::Sell});
   assert(exec.ostat_ == OrderBook::Exec::OrderState::Filled);
-  assert(exec.exec_qty_ == 15);
+  assert(exec.exec_qty_ == 70);
   assert(book.get_bid() == 99);
   assert(book.get_ask() == 100.5);
-  assert(book.get_ltp() == 99.5);
+  assert(book.get_ltp() == 99);
 
   auto exec1 = book.AddOrder(Order{OrderId{27}, Qty{25}, Price{100.5},
                                     Symbol{"GOOG"}, Order::Side::Buy});
