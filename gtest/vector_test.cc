@@ -35,7 +35,7 @@ TEST(VectorTest, CopyConstructor) {
   EXPECT_TRUE(v22.empty());
 }
 
-TEST(VectorTest, CopyConstructor) {
+TEST(VectorTest, CopyConstructor2) {
   sp::vector<int> v11;
   sp::vector<int> v12(std::move(v11));
   EXPECT_EQ(v12.size(), 0);
