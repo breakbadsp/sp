@@ -20,9 +20,11 @@ public:
     vector(const vector& p_rhs) 
     : capacity_(p_rhs.capacity_)
     , size_(p_rhs.size_) {
-        buffer_ = reinterpret_cast<T*>(malloc(sizeof(T) * capacity_));
-        for(size_t i = 0; i < size_; ++i) {
-            new (slot(i)) T(*p_rhs.slot(i));
+        if(capacity_ > 0) {
+            buffer_ = reinterpret_cast<T*>(malloc(sizeof(T) * capacity_));
+            for(size_t i = 0; i < size_; ++i) {
+                new (slot(i)) T(*p_rhs.slot(i));
+            }
         }
     }
 

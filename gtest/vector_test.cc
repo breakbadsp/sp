@@ -22,6 +22,11 @@ TEST(VectorTest, CapConstructor) {
 TEST(VectorTest, CopyConstructor) {
   sp::vector<int> v11;
   sp::vector<int> v12(v11);
+  EXPECT_EQ(v11.size(), 0);
+  EXPECT_EQ(v11.capacity(), 0);
+  EXPECT_EQ(v11.data(), nullptr);
+  EXPECT_TRUE(v11.empty());
+
   EXPECT_EQ(v12.size(), 0);
   EXPECT_EQ(v12.capacity(), 0);
   EXPECT_EQ(v12.data(), nullptr);
