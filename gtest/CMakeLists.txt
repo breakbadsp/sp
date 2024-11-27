@@ -18,18 +18,26 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(
-  latch_tests
+  sp_tests
+  hello_test.cc
+  vector_test.cc
   latch_tests.cc
 )
 
 target_link_libraries(
-  latch_tests
+  sp_tests
   GTest::gtest_main
 )
 
-target_include_directories( latch_tests PUBLIC "${PROJECT_SOURCE_DIR}/../sp/latch.h")
+target_compile_options(
+  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3
+)
+
+target_include_directories( 
+  sp_tests PUBLIC "${PROJECT_SOURCE_DIR}/../sp/"
+)
 
 include(GoogleTest)
-gtest_discover_tests(latch_tests)
+gtest_discover_tests(sp_tests)
 
 
