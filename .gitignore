@@ -1,5 +1,6 @@
 output/**
 gtest/build/**
+gtest/Testing/**
 *.vscode/*
 .vscode
 a.out

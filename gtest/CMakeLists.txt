@@ -31,8 +31,16 @@ target_link_libraries(
 )
 
 target_compile_options(
-  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3
+  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 -fsanitize=address,leak,undefined -static-libsan
 )
+
+target_link_options(
+  sp_tests PUBLIC -fsanitize=address,leak,undefined -static-libsan
+)
+
+#set(MY_COMPIL_FLAGS ${MY_COMPIL_FLAGS} /fsanitize=address)
+#set(CMAKE_EXE_LINKER_FLAGS "/fsanitize=address")
+#target_compile_options(${TARGET_NAME} PRIVATE ${MY_COMPIL_FLAGS})
 
 target_include_directories( 
   sp_tests PUBLIC "${PROJECT_SOURCE_DIR}/../sp/"
