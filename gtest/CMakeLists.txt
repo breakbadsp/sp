@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(my_project)
 
 # GoogleTest requires at least C++14
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
@@ -24,6 +24,7 @@ add_executable(
   latch_tests.cc
   bounded_channel_tests.cc
   option_test.cc
+  mem_pool_test.cc
 )
 
 target_link_libraries(
