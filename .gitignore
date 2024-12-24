@@ -5,3 +5,4 @@ gtest/Testing/**
 .vscode
 a.out
 *.gch
+build/
