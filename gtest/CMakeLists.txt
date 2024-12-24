@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(my_project)
 
 # GoogleTest requires at least C++14
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
@@ -23,6 +23,7 @@ add_executable(
   vector_test.cc
   latch_tests.cc
   bounded_channel_tests.cc
+  option_test.cc
 )
 
 target_link_libraries(
@@ -31,11 +32,11 @@ target_link_libraries(
 )
 
 target_compile_options(
-  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 -fsanitize=address,leak,undefined -static-libsan
+  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 -fsanitize=address,leak,undefined -static-libasan
 )
 
 target_link_options(
-  sp_tests PUBLIC -fsanitize=address,leak,undefined -static-libsan
+  sp_tests PUBLIC -g3 -fsanitize=address,leak,undefined -static-libasan
 )
 
 #set(MY_COMPIL_FLAGS ${MY_COMPIL_FLAGS} /fsanitize=address)
