@@ -1,8 +1,9 @@
+#pragma once
+
 #include <utility>
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
-
 
 namespace sp {
 template<typename T>

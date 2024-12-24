@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector> //TODO:: replace with sp::vector
 #include <atomic>
 
