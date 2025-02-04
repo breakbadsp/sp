@@ -21,8 +21,8 @@ add_executable(
   sp_tests
   hello_test.cc
   vector_test.cc
-  latch_tests.cc
-  bounded_channel_tests.cc
+  latch_test.cc
+  bounded_channel_test.cc
   option_test.cc
   mem_pool_test.cc
   server_test.cc
