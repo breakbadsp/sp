@@ -25,6 +25,7 @@ add_executable(
   bounded_channel_tests.cc
   option_test.cc
   mem_pool_test.cc
+  server_test.cc
 )
 
 target_link_libraries(
