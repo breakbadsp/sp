@@ -64,6 +64,16 @@ class Socket
       return ::recv(fd_, p_buf, p_len, p_flags);
     }
 
+    int read(void *p_buf, size_t p_len)
+    {
+      return ::read(fd_, p_buf, p_len);
+    }
+
+    int write(const void *p_buf, size_t p_len)
+    {
+      return ::write(fd_, p_buf, p_len);
+    }
+
     int GetFd() const
     {
       return fd_;
