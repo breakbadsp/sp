@@ -19,6 +19,11 @@ class Socket
     Socket(int p_domain, int p_type) 
     : fd_(socket(p_domain, p_type, 0))
     {
+      if(fd_ == -1)
+      {
+        std::cerr << "Socket creation failed" << std::endl;
+      }
+      
     }
 
     Socket(int p_fd) : fd_(p_fd)
@@ -34,9 +39,31 @@ class Socket
         close(fd_);
     }
 
+    int GetPort() const
+    {
+      return ntohs(((sockaddr_in*)saddr_)->sin_port);
+    }
+
+    std::string GetIpAddr() const
+    {
+      char ip[INET6_ADDRSTRLEN];
+      if(saddr_->sa_family == AF_INET)
+      {
+        struct sockaddr_in * addr_in = (struct sockaddr_in*) saddr_;
+        inet_ntop(AF_INET, &(addr_in->sin_addr), ip, INET_ADDRSTRLEN);
+        return std::string(ip, INET_ADDRSTRLEN);
+      }
+      return "";
+    }
+
     int Bind(const struct sockaddr *p_addr, socklen_t p_addrlen)
     {
-      return ::bind(fd_, p_addr, p_addrlen);
+      auto ret =  ::bind(fd_, p_addr, p_addrlen);
+      if(ret)
+      {
+        saddr_ = p_addr;
+      }
+      return ret;
     }
 
     int Listen(int p_backlog)
@@ -46,7 +73,12 @@ class Socket
 
     int Accept(struct sockaddr *p_addr, socklen_t *p_addrlen)
     {
-      return ::accept(fd_, p_addr, p_addrlen);
+      auto ret  = ::accept(fd_, p_addr, p_addrlen);
+      if(ret)
+      {
+        saddr_ = p_addr; 
+      }
+      return ret;
     }
 
     int Connect(const struct sockaddr *p_addr, socklen_t p_addrlen)
@@ -135,8 +167,10 @@ class Socket
       return setsockopt(fd_, p_level, p_optname, p_optval, p_optlen);
     }
 
-  private:
-    int fd_;
+  protected:
+    int fd_ {0};
+    const struct sockaddr* saddr_ {nullptr};
+    int port_ {0};
 };
 
 
@@ -149,6 +183,26 @@ class TcpIpSocket : public Socket
 
     TcpIpSocket(int p_fd) : Socket(p_fd)
     {
+    }
+
+    bool Connect(const char* p_ip, int port)
+    {
+      sockaddr_in srvr_addr;
+      srvr_addr.sin_family = AF_INET;
+      srvr_addr.sin_port = htons(port);
+      if(inet_pton(AF_INET, p_ip, &srvr_addr.sin_addr) <= 0)
+      {
+        std::cerr << "Connect failed, invalid srvr addr " << p_ip << '\n';
+        return false;
+      }
+      
+      if(::connect(fd_, (struct sockaddr*)&srvr_addr, sizeof(srvr_addr)) < 0)
+      {
+        std::cerr << "Connect failed, invalid srvr addr " << p_ip << '\n';
+        return false;
+      }
+
+      return true;
     }
 
     int SetNoDelay()
