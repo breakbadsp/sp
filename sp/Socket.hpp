@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+#include "cmn.hpp"
 
 namespace sp
 {
@@ -36,39 +37,31 @@ class Socket
     {
       if(fd_ != -1)
         close(fd_);
-      delete saddr_;
-      saddr_ = nullptr;
     }
+
+    void set_ip(const std::string_view p_ip) { ip_ = p_ip; }
+    void set_port(int p_port) { port_ = p_port; }
 
     bool IsValid() const { return fd_ > 0; }
 
     int GetPort() const
     {
-      return ntohs(((sockaddr_in*)saddr_)->sin_port);
+      return port_;
     }
 
-    std::string GetIpAddr() const
-    {
-      char ip[INET6_ADDRSTRLEN];
-      if(saddr_->sa_family == AF_INET)
-      {
-        const struct sockaddr_in* addr_in = (const struct sockaddr_in*) (saddr_);
-        const char* ip1 = inet_ntop(AF_INET, &(addr_in->sin_addr), ip, INET_ADDRSTRLEN);
-        if(ip1 == nullptr)
-          return "";
-
-        return std::string(ip1);
-      }
-      return "";
-    }
+    std::string GetIpAddr() const { return ip_; }
 
     int Bind(const struct sockaddr *p_addr, socklen_t p_addrlen)
     {
       auto ret =  ::bind(fd_, p_addr, p_addrlen);
       if(ret)
       {
-        saddr_ = new sockaddr();
-        memcpy((void*)saddr_, (void*)p_addr, p_addrlen);
+        auto ip_port = sp::GetIpPort(*p_addr);
+        if(ip_port)
+        {
+          ip_ = ip_port->first;
+          port_ = ip_port->second;
+        }
       }
       return ret;
     }
@@ -80,13 +73,7 @@ class Socket
 
     int Accept(struct sockaddr *p_addr, socklen_t *p_addrlen)
     {
-      auto ret  = ::accept(fd_, p_addr, p_addrlen);
-      if(ret)
-      {
-        saddr_ = new sockaddr();
-        memcpy((void*)saddr_, (void*)p_addr, *p_addrlen);
-      }
-      return ret;
+      return ::accept(fd_, p_addr, p_addrlen);
     }
 
     int Connect(const struct sockaddr *p_addr, socklen_t p_addrlen)

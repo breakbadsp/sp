@@ -9,6 +9,7 @@
 
 #include "Socket.hpp"
 #include "MsgIO.hpp"
+#include "cmn.hpp"
 
 namespace sp
 {
@@ -61,7 +62,18 @@ class TcpIpServer
       struct sockaddr cli_addr;
       socklen_t cli_addrlen = sizeof(cli_addr);
       int cli_sock_fd = msg_io_->Accept(&cli_addr, &cli_addrlen);
-      return std::make_unique<TcpIpSocket>(cli_sock_fd);
+
+      auto client_socket = std::make_unique<TcpIpSocket>(cli_sock_fd);
+      if(cli_sock_fd != -1)
+      {
+        auto ip_port = sp::GetIpPort(cli_addr);
+        if(ip_port)
+        {
+          client_socket->set_ip(ip_port->first);
+          client_socket->set_port(ip_port->second);
+        }
+      }
+      return client_socket;
     }
 
   private:
