@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 #include <sys/types.h> //needed only for some legacy BSD
 #include <sys/socket.h>
@@ -22,8 +22,7 @@ class Socket
       if(fd_ == -1)
       {
         std::cerr << "Socket creation failed" << std::endl;
-      }
-      
+      } 
     }
 
     Socket(int p_fd) : fd_(p_fd)
@@ -37,7 +36,11 @@ class Socket
     {
       if(fd_ != -1)
         close(fd_);
+      delete saddr_;
+      saddr_ = nullptr;
     }
+
+    bool IsValid() const { return fd_ > 0; }
 
     int GetPort() const
     {
@@ -49,9 +52,12 @@ class Socket
       char ip[INET6_ADDRSTRLEN];
       if(saddr_->sa_family == AF_INET)
       {
-        struct sockaddr_in * addr_in = (struct sockaddr_in*) saddr_;
-        inet_ntop(AF_INET, &(addr_in->sin_addr), ip, INET_ADDRSTRLEN);
-        return std::string(ip, INET_ADDRSTRLEN);
+        const struct sockaddr_in* addr_in = (const struct sockaddr_in*) (saddr_);
+        const char* ip1 = inet_ntop(AF_INET, &(addr_in->sin_addr), ip, INET_ADDRSTRLEN);
+        if(ip1 == nullptr)
+          return "";
+
+        return std::string(ip1);
       }
       return "";
     }
@@ -61,7 +67,8 @@ class Socket
       auto ret =  ::bind(fd_, p_addr, p_addrlen);
       if(ret)
       {
-        saddr_ = p_addr;
+        saddr_ = new sockaddr();
+        memcpy((void*)saddr_, (void*)p_addr, p_addrlen);
       }
       return ret;
     }
@@ -76,7 +83,8 @@ class Socket
       auto ret  = ::accept(fd_, p_addr, p_addrlen);
       if(ret)
       {
-        saddr_ = p_addr; 
+        saddr_ = new sockaddr();
+        memcpy((void*)saddr_, (void*)p_addr, *p_addrlen);
       }
       return ret;
     }
@@ -169,7 +177,7 @@ class Socket
 
   protected:
     int fd_ {0};
-    const struct sockaddr* saddr_ {nullptr};
+    std::string ip_ {};
     int port_ {0};
 };
 
@@ -192,16 +200,15 @@ class TcpIpSocket : public Socket
       srvr_addr.sin_port = htons(port);
       if(inet_pton(AF_INET, p_ip, &srvr_addr.sin_addr) <= 0)
       {
-        std::cerr << "Connect failed, invalid srvr addr " << p_ip << '\n';
+        std::cerr << "Connect failed, error: " << strerror(errno) << p_ip << '\n';
         return false;
       }
       
-      if(::connect(fd_, (struct sockaddr*)&srvr_addr, sizeof(srvr_addr)) < 0)
+      if(::connect(fd_, (const struct sockaddr*)&srvr_addr, sizeof(srvr_addr)) < 0)
       {
-        std::cerr << "Connect failed, invalid srvr addr " << p_ip << '\n';
+        std::cerr << "Connect failed, error: " << strerror(errno) << p_ip << '\n';
         return false;
       }
-
       return true;
     }
 

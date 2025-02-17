@@ -19,17 +19,23 @@ class TcpIpServer
     TcpIpServer() = delete;
 
     TcpIpServer(int p_port, int p_backlog = 5)
-    : msg_io_(std::make_unique<TcpMsgIO>(p_port))
-    , port_(p_port)
+    : port_(p_port)
     {
+      auto socket = std::make_unique<TcpIpSocket>();
+      msg_io_ = std::make_unique<TcpMsgIO>(std::move(socket));
+
       struct sockaddr_in addr;
       addr.sin_family = AF_INET;
       addr.sin_port = htons(p_port);
       addr.sin_addr.s_addr = INADDR_ANY;
 
-      if(msg_io_->get_socket().Bind((struct sockaddr *)&addr, sizeof(addr)) < 0)
+      if(msg_io_->get_socket().Bind(
+              (struct sockaddr *)&addr, 
+              sizeof(addr)) < 0
+          )
       {
-        std::cerr << "Bind failed" << std::endl;
+        std::cerr << "Bind failed, error: " << strerror(errno) 
+          << std::endl;
         msg_io_.reset(nullptr);
         return;
       }
@@ -41,15 +47,21 @@ class TcpIpServer
         return;
       }
 
-      std::cout << "Server listening on port " << p_port << std::endl;
+      std::cout << "Server listening on port " << p_port 
+        << std::endl;
     }
 
     bool IsValid() const { return msg_io_.get() != nullptr; }
 
-    int Accept(struct sockaddr *p_addr, socklen_t *p_addrlen)
+    std::unique_ptr<TcpIpSocket> Accept()
     {
-      std::cout << "Server waiting for new connections on port " << port_ << std::endl;
-      return msg_io_->Accept(p_addr, p_addrlen);
+      std::cout << "Server waiting for connections on port:" 
+        << port_ << std::endl;
+
+      struct sockaddr cli_addr;
+      socklen_t cli_addrlen = sizeof(cli_addr);
+      int cli_sock_fd = msg_io_->Accept(&cli_addr, &cli_addrlen);
+      return std::make_unique<TcpIpSocket>(cli_sock_fd);
     }
 
   private:
@@ -68,19 +80,23 @@ class UdpIpServer
       addr.sin_port = htons(p_port);
       addr.sin_addr.s_addr = INADDR_ANY;
 
-      if(socket_.Bind((struct sockaddr *)&addr, sizeof(addr)) < 0)
+      if(socket_.Bind((struct sockaddr *)&addr,
+                      sizeof(addr)) < 0)
       {
         std::cerr << "Bind failed" << std::endl;
         exit(1);
       }
     }
 
-    int RecvFrom(void *p_buf, size_t p_len, int p_flags, struct sockaddr *p_addr, socklen_t *p_addrlen)
+    int RecvFrom(void *p_buf, size_t p_len, 
+                 int p_flags, struct sockaddr *p_addr, 
+                 socklen_t *p_addrlen)
     {
       return socket_.RecvFrom(p_buf, p_len, p_flags, p_addr, p_addrlen);
     }
 
-    int SendTo(const void *p_buf, size_t p_len, int p_flags, const struct sockaddr *p_addr, socklen_t p_addrlen)
+    int SendTo(const void *p_buf, size_t p_len, int p_flags, 
+          const struct sockaddr *p_addr, socklen_t p_addrlen)
     {
       return socket_.SendTo(p_buf, p_len, p_flags, p_addr, p_addrlen);
     }

@@ -13,15 +13,15 @@ class TcpMsgIO
     : socket_(std::make_unique<TcpIpSocket>(p_sock_fd))
     { }
 
-    TcpMsgIO(TcpIpSocket* p_socket)
+    TcpMsgIO(std::unique_ptr<TcpIpSocket>&& p_socket)
     {
-      socket_.reset(p_socket);
+      socket_ = std::move(p_socket);
     }
 
     ~TcpMsgIO()
     {
-      delete read_buff_;
-      delete write_buff_;
+      delete [] read_buff_;
+      delete [] write_buff_;
     }
 
     TcpIpSocket& get_socket()
@@ -81,10 +81,10 @@ class TcpMsgIO
       }
 
       len = ntohl(len);
-      if(read_buff_len_ < len)
+      if(read_buff_len_ <= len)
       {
         delete[] read_buff_;
-        read_buff_len_ = len;
+        read_buff_len_ = len+1;
         read_buff_ = new char[read_buff_len_];
       }
 
