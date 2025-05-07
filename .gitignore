@@ -3,6 +3,7 @@ gtest/build/**
 gtest/Testing/**
 *.vscode/*
 .vscode
+.idea
 a.out
 *.gch
 build/
