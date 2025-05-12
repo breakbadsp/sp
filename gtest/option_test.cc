@@ -27,7 +27,7 @@ TEST_F(OptionTest, ApiTestsWithInt) {
 TEST_F(OptionTest, ApiTestsWithComplextStruct) {
   struct ComplexStruct {
     ComplexStruct() = default;
-    ComplexStruct(const char* p_buff) 
+    ComplexStruct(const char* p_buff)
     {
       buff_ = new char[strlen(p_buff) + 1];
       strcpy(buff_, p_buff);

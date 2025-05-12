@@ -40,6 +40,11 @@ public:
 
     vector& operator=(const vector& p_rhs) {
         if(this != &p_rhs) {
+            if (!p_rhs.buffer_) {
+                clear();
+                return *this;
+            }
+
             auto* new_buffer = reinterpret_cast<T*>(malloc(sizeof(T) * p_rhs.capacity_));
             for(size_t i = 0; i < p_rhs.size_; ++i) {
                 new (&new_buffer[i]) T(*p_rhs.slot(i));

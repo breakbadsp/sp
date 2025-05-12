@@ -7,6 +7,7 @@
 #include <unistd.h> //needed for close
 #include <fcntl.h> //needed for fcntl
 #include <sys/time.h> //needed for timeval
+#include <string.h>
 
 #include <iostream>
 
