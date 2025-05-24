@@ -132,4 +132,146 @@ TEST(vector_test, ApiTests) {
   EXPECT_EQ(v2[1], 2);
 }
 
+TEST(vector_test, ApiTests2) {
+  struct TestStruct {
+    char* ptr = nullptr;
+    TestStruct() {
+      ptr = new char[20];
+      strcpy(ptr, "TestStruct");
+    }
+
+    ~TestStruct() {
+      delete [] ptr;
+    }
+
+    TestStruct(const char* p_rhs) {
+      if (p_rhs) {
+        ptr = new char[strlen(p_rhs) + 1];
+        strcpy(ptr, p_rhs);
+      }
+    }
+
+    TestStruct(const TestStruct& other) {
+      if (other.ptr) {
+        ptr = new char[strlen(other.ptr) + 1];
+        strcpy(ptr, other.ptr);
+      }
+    }
+
+    TestStruct(TestStruct&& other) noexcept :
+      ptr(other.ptr)
+    {
+      other.ptr = nullptr;
+    }
+
+    TestStruct& operator=(const TestStruct& other) {
+      if (this == &other)
+          return *this;
+
+      if (other.ptr) {
+        delete [] ptr;
+        ptr = new char[strlen(other.ptr) + 1];
+        strcpy(ptr, other.ptr);
+      }
+      return *this;
+    }
+
+    TestStruct& operator=(TestStruct&& other) {
+      if (this == &other) {
+        return *this;
+      }
+      if (other.ptr) {
+        ptr = other.ptr;
+        other.ptr = nullptr;
+      }
+      return *this;
+    }
+  };
+
+  sp::vector<TestStruct> v1;
+  v1.push_back(TestStruct("TestStruct1"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  v1.push_back(TestStruct("TestStruct2"));
+  TestStruct s1("TempStruct");
+  v1.push_back(s1);
+  v1.push_back(s1);
+  v1.push_back(s1);
+  v1.push_back(s1);
+
+  sp::vector<TestStruct> v2 = v1;
+  sp::vector<TestStruct> v3;
+  v3 = v1;
+
+  sp::vector<TestStruct> v4;
+  v4 = std::move(v1);
+
+  sp::vector<TestStruct> v5;
+  TestStruct s2("TempStruct");
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+  v5.push_back(s2);
+}
+
+
 
