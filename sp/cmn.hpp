@@ -3,13 +3,15 @@
 #include <netinet/in.h> //needed for sockaddr_in
 #include <arpa/inet.h> //needed for inet_ntoa
 
-#include <thread>
 #include <atomic>
-#include <string>
-#include <iostream>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <optional>
+#include <string>
+#include <thread>
+
+#include "owning_ptr.hpp"
 
 namespace sp 
 {
@@ -60,7 +62,7 @@ inline auto CreateAndRunThread(int p_core_id,
     std::forward<T>(p_func)((std::forward<A>(p_args))...); //call function
   };
 
-  auto t = new std::thread(thread_body);
+  auto t = sp::make_owning<std::thread>(thread_body);
 
   while(!failed && !running)
   {
@@ -101,7 +103,7 @@ inline auto CreateAndRunThread(int p_core_id,
     std::forward<T>(p_func)(); //call function
   };
 
-  auto t = new std::thread(thread_body);
+  auto t = sp::make_owning<std::thread>(thread_body);
 
   while(!failed && !running)
   {

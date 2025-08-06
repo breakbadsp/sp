@@ -2,13 +2,14 @@
 #include <vector>
 #include <thread>
 #include <algorithm>
- 
+
 #include "CMN.hpp"
-#include "cmn.hpp"
-#include "Types.hpp"
 #include "Hashing.hpp"
-#include "spinlock.hpp"
+#include "Types.hpp"
+#include "cmn.hpp"
 #include "latch.hpp"
+#include "owning_ptr.hpp"
+#include "spinlock.hpp"
 
 #define ASSERT(exp) exp ? std::cout << "Test case " << #exp << " passed\n" : \
                           std::cout << "Test case " << #exp << " failed!\n";
@@ -57,7 +58,7 @@ void TestMoveAndForward()
 void TestThreadCreation()
 {
 
-    auto* new_thread = sp::CreateAndRunThread(
+    auto new_thread = sp::CreateAndRunThread(
             0, 
             "TestThread",
             CalculateSum,
@@ -69,7 +70,6 @@ void TestThreadCreation()
 
     new_thread->join();
     std::cout << "Exiting main\n";
-    delete new_thread;   
 }
 
 void TestFloatingPointMath()
@@ -112,14 +112,14 @@ void TestLocks()
   constexpr size_t TOTAL = 200;
 
   sp::spinlock_v1 lock;
-  auto* new_thread1 = sp::CreateAndRunThread(
+  auto new_thread1 = sp::CreateAndRunThread(
             1, 
             "TestThread1",
             Sum,
             &sum_by_t1, 1, TOTAL/2, lock
             );
 
-  auto* new_thread2 = sp::CreateAndRunThread(
+  auto new_thread2 = sp::CreateAndRunThread(
             2, 
             "TestThread2",
              Sum,
@@ -143,9 +143,6 @@ void TestLocks()
 
  std::cout << "Test lock , Final count " << sum_by_t1 
   << ", expected count " << total <<  '\n';
-
-  delete new_thread1;
-  delete new_thread2;
   std::cout << "Exiting main\n";
 }
 
@@ -154,7 +151,7 @@ void TestLatch()
   std::cout << "Latch test started\n";
   constexpr int total_threads = 10;
   std::atomic_int num = 0;
-  std::vector<std::thread*> threads;
+  std::vector<sp::owning_ptr<std::thread>> threads;
   sp::latch latch(total_threads);
   sp::latch latch2(total_threads);
 

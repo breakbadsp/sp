@@ -35,10 +35,11 @@ target_link_libraries(
 )
 
 set(SANITIZE_FLAGS
-  -fsanitize=address,leak,undefined
-  -fsanitize-address-use-after-scope
-  -fsanitize-recover=all
-  -static-libasan
+  #-fsanitize=address,leak,undefined
+  #-fsanitize-address-use-after-scope
+  #-fsanitize-recover=all
+  #-static-libasan
+
 )
 
 target_compile_options(

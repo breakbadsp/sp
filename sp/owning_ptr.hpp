@@ -35,7 +35,7 @@ class owning_ptr final
       if(&p_other == this)
         return;
 
-      raw_ptr_ = sp::move(p_other.raw_ptr_);
+      raw_ptr_ = std::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
     }
 
@@ -44,7 +44,7 @@ class owning_ptr final
       if(&p_other == this)
         return *this;
 
-      raw_ptr_ = sp::move(p_other.raw_ptr_);
+      raw_ptr_ = std::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
 
       return *this;
@@ -60,7 +60,7 @@ class owning_ptr final
 
     void reset(owning_ptr&& p_other) noexcept {
       delete raw_ptr_;
-      raw_ptr_ = sp::move(p_other.raw_ptr_);
+      raw_ptr_ = std::move(p_other.raw_ptr_);
       p_other.raw_ptr_ = nullptr;
     }
 
