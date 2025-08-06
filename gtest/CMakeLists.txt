@@ -26,6 +26,7 @@ add_executable(
   option_test.cc
   mem_pool_test.cc
   server_test.cc
+  mmf_test.cc
 )
 
 target_link_libraries(
@@ -33,12 +34,19 @@ target_link_libraries(
   GTest::gtest_main
 )
 
+set(SANITIZE_FLAGS
+  -fsanitize=address,leak,undefined
+  -fsanitize-address-use-after-scope
+  -fsanitize-recover=all
+  -static-libasan
+)
+
 target_compile_options(
-  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 -fsanitize=address,leak,undefined -static-libasan
+  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 ${SANITIZE_FLAGS}
 )
 
 target_link_options(
-  sp_tests PUBLIC -g3 -fsanitize=address,leak,undefined -static-libasan
+  sp_tests PUBLIC -g3 -O3 ${SANITIZE_FLAGS}
 )
 
 #set(MY_COMPIL_FLAGS ${MY_COMPIL_FLAGS} /fsanitize=address)
