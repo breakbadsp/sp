@@ -64,14 +64,14 @@ class owning_ptr final
       p_other.raw_ptr_ = nullptr;
     }
 
-    void reset(T* p_raw) noexcept {
+    void reset(T* p_raw = nullptr) noexcept {
       delete raw_ptr_;
       raw_ptr_ = p_raw;
     }
 
-    void reset(decltype(nullptr)) noexcept {
+    /*void reset(decltype(nullptr)) noexcept {
       delete raw_ptr_;
-    }
+    }*/
 
     T* release() noexcept {
       auto* temp = raw_ptr_;

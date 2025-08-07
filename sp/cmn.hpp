@@ -48,7 +48,7 @@ inline auto CreateAndRunThread(int p_core_id,
     std::forward<T>(p_func)((std::forward<A>(p_args))...); //call function
   };
 
-  auto t = sp::make_owning<std::thread>(thread_body);
+  auto t = make_owning<std::thread>(thread_body);
 
   while(!failed && !running)
   {
@@ -60,10 +60,8 @@ inline auto CreateAndRunThread(int p_core_id,
   if(failed)
   {
     t->join();
-    delete t;
-    t = nullptr;
+    t.reset(nullptr); //reset the thread if failed
   }
-
   return t;
 }
 
@@ -89,7 +87,7 @@ inline auto CreateAndRunThread(int p_core_id,
     std::forward<T>(p_func)(); //call function
   };
 
-  auto t = sp::make_owning<std::thread>(thread_body);
+  auto t = make_owning<std::thread>(thread_body);
 
   while(!failed && !running)
   {
@@ -101,8 +99,7 @@ inline auto CreateAndRunThread(int p_core_id,
   if(failed)
   {
     t->join();
-    delete t;
-    t = nullptr;
+    t.reset(nullptr); //reset the thread if failed
   }
 
   return t;

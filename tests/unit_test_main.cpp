@@ -32,7 +32,7 @@ int main()
 
   
   using namespace sp;
-  std::vector<std::thread*> threads;
+  //std::vector<std::thread> threads;
   //threads.emplace_back(CreateAndRunThread(1, "TestVector", TestVector));
   //threads.emplace_back(CreateAndRunThread(2, "TestListApis", TestListApis));
   //threads.emplace_back(CreateAndRunThread(3, "TestString", TestString));
@@ -40,11 +40,11 @@ int main()
   //threads.emplace_back(CreateAndRunThread(4, "TestSharedPtr", TestSharedPtr));
   //threads.emplace_back(CreateAndRunThread(5, "TestMap", TestMap));
 
-  for(auto* t: threads)
+  /*for(auto t: threads)
   {
     t->join();
-    delete t;
-  }
+    t.reset(nullptr);
+  }*/
   //#endif
   
   std::cout << "test are done\n";
