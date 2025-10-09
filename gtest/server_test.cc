@@ -8,7 +8,6 @@
 #include <gtest/gtest.h>
 #include "Server.hpp"
 
-
 class TcpIpServerTest : public ::testing::Test
 {
   protected:

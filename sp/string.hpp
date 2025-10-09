@@ -17,8 +17,13 @@ class string
       delete [] buffer_; 
     }
     
-    string(const char* p_c_style) {
+    explicit string(const char* p_c_style) {
       Init(p_c_style);
+    }
+
+    //TODO:: Add support for char arrays of known size or null terminated arrays
+    explicit string(char p_null_term_array[]) {
+      Init(p_null_term_array);
     }
 
     explicit string(const string& p_other) {
@@ -70,12 +75,17 @@ class string
       if(p_other.get_size() <= 0)
         return *this;
 
+      if(get_size() <= 0) {
+        *this = p_other;
+        return *this;
+      }
+
       const size_t new_size = get_size() + p_other.get_size() + 1;
-      auto* new_buffer_ptr = new char[new_size];
-      strcpy(new_buffer_ptr, buffer_);
-      strcpy(new_buffer_ptr + get_size() - 1, p_other.buffer_);
+      auto* new_buffer = new char[new_size];
+      strcpy(new_buffer, buffer_);
+      strcpy(new_buffer + get_size(), p_other.buffer_);
       delete [] buffer_;
-      buffer_ = new_buffer_ptr;
+      buffer_ = new_buffer;
       size_ = new_size - 1;
       return *this;
     }
@@ -88,7 +98,7 @@ class string
 
     //getters
     const char* c_str() const noexcept { return buffer_; }
-    unsigned int get_size() const noexcept { return size_; }
+    size_t get_size() const noexcept { return size_; }
 
 
   private:
@@ -96,6 +106,12 @@ class string
     size_t size_ {0};
 
     void Init(const char* p_c_style) {
+      delete [] buffer_;  // Add this line
+      if (!p_c_style) {
+          buffer_ = nullptr;
+          size_ = 0;
+          return;
+      }
       size_t len = strlen(p_c_style) + 1;
       buffer_ = new char[len];
       size_ = len - 1;
