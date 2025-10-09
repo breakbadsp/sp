@@ -55,9 +55,9 @@ class string
       new_string.buffer_ = new char[new_len];
       new_string.size_ = new_len - 1;
 
-      char* new_buffer_ptr = new_string.buffer_;
-      strncpy(new_buffer_ptr, c_str(), get_size());
-      strcpy(new_buffer_ptr + get_size(), p_other.buffer_);
+      char* new_buffer = new_string.buffer_;
+      memcpy(new_buffer, c_str(), get_size());
+      memcpy(new_buffer + get_size(), p_other.buffer_, p_other.get_size() + 1);
 
       return new_string;
     }
@@ -73,8 +73,8 @@ class string
 
       const size_t new_size = get_size() + p_other.get_size() + 1;
       auto* new_buffer = new char[new_size];
-      strcpy(new_buffer, buffer_);
-      strcpy(new_buffer + get_size(), p_other.buffer_);
+      memcpy(new_buffer, buffer_, get_size());
+      memcpy(new_buffer + get_size(), p_other.buffer_, p_other.get_size() + 1);
       delete [] buffer_;
       buffer_ = new_buffer;
       size_ = new_size - 1;
@@ -188,10 +188,9 @@ class string
           size_ = 0;
           return;
       }
-      size_t len = strlen(p_c_style) + 1;
-      buffer_ = new char[len];
-      size_ = len - 1;
-      strcpy(buffer_, p_c_style);
+      size_ = strlen(p_c_style);
+      buffer_ = new char[size_ + 1];
+      memcpy(buffer_, p_c_style, size_ + 1); // including null terminator
     }
 };
 } //sp
