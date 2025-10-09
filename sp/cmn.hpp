@@ -12,6 +12,8 @@
 #include <thread>
 
 #include "owning_ptr.hpp"
+#include "utility.hpp"
+#include "Types.hpp"
 
 namespace sp 
 {

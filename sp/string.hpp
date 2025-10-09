@@ -11,7 +11,7 @@ class string
 
   public:
     constexpr string() noexcept = default;
-    constexpr ~string() noexcept {
+    ~string() noexcept {
       delete [] buffer_; 
     }
     
@@ -23,7 +23,7 @@ class string
       Init(p_null_term_array);
     }
 
-    constexpr string(const string& p_other) {
+    string(const string& p_other) {
       Init(p_other.buffer_);
     }
 
