@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstring>
-#include <iostream>
-
-#include "owning_ptr.hpp"
+#include "utility.hpp" // for sp::move
 
 namespace sp
 {
@@ -21,7 +19,6 @@ class string
       Init(p_c_style);
     }
 
-    //TODO:: Add support for char arrays of known size or null terminated arrays
     explicit string(char p_null_term_array[]) {
       Init(p_null_term_array);
     }

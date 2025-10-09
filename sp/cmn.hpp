@@ -139,18 +139,6 @@ typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
           !(almost_equal(x,y,ulp));
 }
 
-template<class T>
-constexpr std::remove_reference_t<T>&& move(T&& t) noexcept //t is universal ref or forwarding reference
-{
-  return static_cast<typename std::remove_reference<T>::type&&>(t);
-}
-
-template<class T>
-constexpr T&& forward(T&& t) noexcept //t is universal ref or forwarding reference
-{
-  return static_cast<T&&>(t);
-}
-
 }//sp
 
 
