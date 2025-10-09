@@ -137,6 +137,36 @@ TEST(StringTest, ComparisonOperators) {
   EXPECT_TRUE(s1 >= s3);
 }
 
+//null, empty check testing if nullptr passed then exception etc for comparison operators
+TEST(StringTest, ComparisonWithNullAndEmpty) {
+  sp::string s1; // empty string
+  sp::string s2("NonEmpty");
+
+  EXPECT_TRUE(s1 == s1); // empty == empty
+  EXPECT_FALSE(s1 == s2); // empty != non-empty
+  EXPECT_TRUE(s1 != s2);
+  EXPECT_TRUE(s1 < s2);
+  EXPECT_FALSE(s2 < s1);
+  EXPECT_TRUE(s1 <= s2);
+  EXPECT_FALSE(s2 <= s1);
+  EXPECT_FALSE(s1 > s2);
+  EXPECT_TRUE(s2 > s1);
+  EXPECT_FALSE(s1 >= s2);
+  EXPECT_TRUE(s2 >= s1);
+
+  sp::string s3; // null string treated as empty
+  EXPECT_TRUE(s1 == s3);
+  EXPECT_FALSE(s1 != s3);
+  EXPECT_FALSE(s1 < s3);
+  EXPECT_FALSE(s3 < s1);
+  EXPECT_TRUE(s1 <= s3);
+  EXPECT_TRUE(s3 <= s1);
+  EXPECT_FALSE(s1 > s3);
+  EXPECT_FALSE(s3 > s1);
+  EXPECT_TRUE(s1 >= s3);
+  EXPECT_TRUE(s3 >= s1);
+}
+
 // Substring tests
 TEST(StringTest, SubstrMethod) {
   sp::string s("SubstringTest");

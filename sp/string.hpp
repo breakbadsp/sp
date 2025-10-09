@@ -3,40 +3,30 @@
 #include <cstring>
 #include "utility.hpp" // for sp::move
 
-namespace sp
-{
 
-class string
-{
+namespace sp {
 
-  public:
+  class string {
+
+public:
     constexpr string() noexcept = default;
-    ~string() noexcept {
-      delete [] buffer_; 
-    }
-    
-    explicit string(const char* p_c_style) {
-      Init(p_c_style);
-    }
+    ~string() noexcept { delete[] buffer_; }
 
-    explicit string(char p_null_term_array[]) {
-      Init(p_null_term_array);
-    }
+    explicit string(decltype(nullptr)) = delete; //this should be a compiler error, real world pain fixed
+    explicit string(const char *p_c_style) { Init(p_c_style); }
 
-    string(const string& p_other) {
-      Init(p_other.buffer_);
-    }
+    explicit string(char p_null_term_array[]) { Init(p_null_term_array); }
 
-    constexpr string(string&& p_other) noexcept
-    : buffer_(sp::move(p_other.buffer_))
-    , size_(sp::move(p_other.size_)) {
+    string(const string& p_other) { Init(p_other.buffer_); }
+
+    constexpr string(string& p_other) noexcept : buffer_(sp::move(p_other.buffer_)), size_(sp::move(p_other.size_)) {
 
       p_other.buffer_ = nullptr;
       p_other.size_ = 0;
     }
- 
-    //copy and swap idiom
-    constexpr string& operator=(string p_other) noexcept {  // parameter is passed by value, so copy happens before this function
+
+    // copy and swap idiom
+    constexpr string& operator=(string p_other) noexcept { // parameter is passed by value, so copy happens before this function
       swap(p_other);
       return *this;
     }
@@ -44,15 +34,14 @@ class string
     // We do not need move assignment operator as we have copy and swap idiom implemented
     // Copy and swap idiom will do move and swap when rvalue is passed
     // that is very neat and clean implementation
-    
-    string operator+(const string& p_other) const {
 
+    string operator+(const string& p_other) const {
       size_t new_len = p_other.get_size() + get_size() + 1;
       string new_string;
       new_string.buffer_ = new char[new_len];
       new_string.size_ = new_len - 1;
 
-      char* new_buffer = new_string.buffer_;
+      char *new_buffer = new_string.buffer_;
       memcpy(new_buffer, c_str(), get_size());
       memcpy(new_buffer + get_size(), p_other.buffer_, p_other.get_size() + 1);
 
@@ -60,27 +49,27 @@ class string
     }
 
     string& operator+=(const string& p_other) {
-      if(p_other.get_size() <= 0)
+      if (p_other.get_size() <= 0)
         return *this;
 
-      if(get_size() <= 0) {
+      if (get_size() <= 0) {
         *this = p_other;
         return *this;
       }
 
       const size_t new_size = get_size() + p_other.get_size() + 1;
-      auto* new_buffer = new char[new_size];
+      auto *new_buffer = new char[new_size];
       memcpy(new_buffer, buffer_, get_size());
       memcpy(new_buffer + get_size(), p_other.buffer_, p_other.get_size() + 1);
-      delete [] buffer_;
+      delete[] buffer_;
       buffer_ = new_buffer;
       size_ = new_size - 1;
       return *this;
     }
 
-    //friend functions
-    friend std::ostream& operator<< (std::ostream& p_os, const sp::string& p_string){
-      if(p_string.c_str())
+    // friend functions
+    friend std::ostream &operator<<(std::ostream &p_os, const sp::string& p_string) {
+      if (p_string.c_str())
         p_os << p_string.c_str();
       return p_os;
     }
@@ -98,30 +87,43 @@ class string
     }
 
     bool operator==(const string& p_other) const noexcept {
+      if(!buffer_ && !p_other.buffer_)
+        return true;
+      if(!buffer_ || !p_other.buffer_)
+        return false;
+
       if (size_ != p_other.size_)
         return false;
+
       return strcmp(buffer_, p_other.buffer_) == 0;
     }
-    
-    bool operator!=(const string& p_other) const noexcept {
-        return !(*this == p_other);
-    }
-    
+
+    bool operator!=(const string& p_other) const noexcept { return !(*this == p_other); }
+
     bool operator<(const string& p_other) const noexcept {
-        return strcmp(buffer_, p_other.buffer_) < 0;
+      if(!buffer_ && !p_other.buffer_)
+        return false;
+      if(!buffer_)
+        return true;
+      if(!p_other.buffer_)
+        return false;
+      return strcmp(buffer_, p_other.buffer_) < 0;
     }
-    
+
     bool operator>(const string& p_other) const noexcept {
-        return p_other < *this;
+      if(!buffer_ && !p_other.buffer_)
+        return false;
+      if(!buffer_)
+        return false;
+      if(!p_other.buffer_)
+        return true;
+
+      return p_other < *this;
     }
-    
-    bool operator<=(const string& p_other) const noexcept {
-        return !(p_other < *this);
-    }
-    
-    bool operator>=(const string& p_other) const noexcept {
-        return !(*this < p_other);
-    }
+
+    bool operator<=(const string& p_other) const noexcept { return !(p_other < *this); }
+
+    bool operator>=(const string& p_other) const noexcept { return !(*this < p_other); }
 
     void clear() noexcept {
       delete[] buffer_;
@@ -146,10 +148,10 @@ class string
       return result;
     }
 
-    size_t find(const string &str, size_t pos = 0) const noexcept {
+    size_t find(const string& str, size_t pos = 0) const noexcept {
       if (pos >= size_ || str.is_empty() || str.get_size() > size_)
         return npos;
-      
+
       return find(str.c_str(), pos);
     }
 
@@ -160,34 +162,34 @@ class string
       if (pos >= size_ || *s == '\0')
         return npos;
 
-    const char *found = strstr(buffer_ + pos, s);
+      const char *found = strstr(buffer_ + pos, s);
       if (!found)
         return npos;
 
       return found - buffer_;
     }
 
-    //getters
-    constexpr const char* c_str() const noexcept { return buffer_; }
+    // getters
+    constexpr const char *c_str() const noexcept { return buffer_; }
     constexpr size_t get_size() const noexcept { return size_; }
 
     constexpr bool is_empty() const noexcept { return size_ == 0; }
-    
 
-  private:
-    char* buffer_ {nullptr};
-    size_t size_ {0};
 
-    void Init(const char* p_c_style) {
-      delete [] buffer_;  // Add this line
+private:
+    char *buffer_{nullptr};
+    size_t size_{0};
+
+    void Init(const char *p_c_style) {
+      delete[] buffer_; // Add this line
       if (!p_c_style) {
-          buffer_ = nullptr;
-          size_ = 0;
-          return;
+        buffer_ = nullptr;
+        size_ = 0;
+        return;
       }
       size_ = strlen(p_c_style);
       buffer_ = new char[size_ + 1];
       memcpy(buffer_, p_c_style, size_ + 1); // including null terminator
     }
-};
-} //sp
+  };
+} // namespace sp
