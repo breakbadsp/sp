@@ -12,8 +12,8 @@ class string
 {
 
   public:
-    constexpr string() = default;
-    ~string() { 
+    constexpr string() noexcept = default;
+    ~string() noexcept { 
       delete [] buffer_; 
     }
     
@@ -39,7 +39,7 @@ class string
     }
  
     //copy and swap idiom
-    string& operator=(string p_other) {
+    string& operator=(string p_other) noexcept {  // parameter is passed by value, so copy happens before this function
       swap(p_other);
       return *this;
     }
