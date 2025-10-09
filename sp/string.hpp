@@ -13,7 +13,7 @@ class string
 
   public:
     constexpr string() noexcept = default;
-    ~string() noexcept { 
+    constexpr ~string() noexcept {
       delete [] buffer_; 
     }
     
@@ -26,11 +26,11 @@ class string
       Init(p_null_term_array);
     }
 
-    string(const string& p_other) {
+    constexpr string(const string& p_other) {
       Init(p_other.buffer_);
     }
 
-    string(string&& p_other) noexcept
+    constexpr string(string&& p_other) noexcept
     : buffer_(sp::move(p_other.buffer_))
     , size_(sp::move(p_other.size_)) {
 
@@ -39,7 +39,7 @@ class string
     }
  
     //copy and swap idiom
-    string& operator=(string p_other) noexcept {  // parameter is passed by value, so copy happens before this function
+    constexpr string& operator=(string p_other) noexcept {  // parameter is passed by value, so copy happens before this function
       swap(p_other);
       return *this;
     }
@@ -88,13 +88,13 @@ class string
       return p_os;
     }
 
-    friend void swap(string& p_lhs, string& p_rhs) noexcept {
+    friend constexpr void swap(string& p_lhs, string& p_rhs) noexcept {
       using std::swap;
       swap(p_lhs.buffer_, p_rhs.buffer_);
       swap(p_lhs.size_, p_rhs.size_);
     }
 
-    void swap(string& p_other) noexcept {
+    constexpr void swap(string& p_other) noexcept {
       using std::swap;
       swap(buffer_, p_other.buffer_);
       swap(size_, p_other.size_);
@@ -171,10 +171,10 @@ class string
     }
 
     //getters
-    const char* c_str() const noexcept { return buffer_; }
-    size_t get_size() const noexcept { return size_; }
+    constexpr const char* c_str() const noexcept { return buffer_; }
+    constexpr size_t get_size() const noexcept { return size_; }
 
-    bool is_empty() const noexcept { return size_ == 0; }
+    constexpr bool is_empty() const noexcept { return size_ == 0; }
     
 
   private:
