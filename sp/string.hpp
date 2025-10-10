@@ -26,7 +26,7 @@ public:
     }
 
     // copy and swap idiom
-    constexpr string& operator=(string p_other) noexcept { // parameter is passed by value, so copy happens before this function
+    string& operator=(string p_other) noexcept { // parameter is passed by value, so copy happens before this function
       swap(p_other);
       return *this;
     }
