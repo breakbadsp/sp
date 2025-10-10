@@ -28,6 +28,8 @@ add_executable(
   #server_test.cc
   mmf_test.cc
   string_test.cc
+  object_pool_test.cc
+  #pool_implementation_benchmark.cc
 )
 
 target_link_libraries(
