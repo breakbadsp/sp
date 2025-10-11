@@ -49,7 +49,7 @@ namespace sp
       p_rhs.size_ = 0;
     }
 
-    vector &operator=(vector p_rhs) 
+    vector &operator=(vector p_rhs) noexcept
     {
       swap(p_rhs);
       return *this;
