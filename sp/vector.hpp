@@ -164,16 +164,24 @@ namespace sp
     bool empty() const noexcept { return size() == 0; }
 
   private:
-    void reallocate(size_t p_new_cap) {
-      if (p_new_cap == 0)
-        p_new_cap = 2;
-      T *new_buff = alloc(p_new_cap);
-      for (size_t i = 0; i < size_; ++i) {
-        std::construct_at(new_buff + i, *slot(i));
+    void reallocate(size_t p_ncap) 
+    {
+      p_ncap = p_ncap == 0 ? 2 : p_ncap;
+      T *new_buff = alloc(p_ncap);
+      for (size_t i = 0; i < size_; ++i) 
+      {
+        if constexpr (std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>) 
+        {
+          std::construct_at(new_buff + i, std::move(*slot(i)));
+        } 
+        else 
+        {
+          std::construct_at(new_buff + i, *slot(i));
+        }
       }
 
       clear();
-      capacity_ = p_new_cap;
+      capacity_ = p_ncap;
       buffer_ = reinterpret_cast<T *>(new_buff);
     }
 
