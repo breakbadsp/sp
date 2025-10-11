@@ -13,10 +13,10 @@ TEST(VectorTest, Constructor) {
 
 TEST(VectorTest, CapConstructor) {
   sp::vector<int> v1(10);
-  EXPECT_EQ(v1.size(), 0);
+  EXPECT_EQ(v1.size(), 10);
   EXPECT_EQ(v1.capacity(), 10);
   EXPECT_NE(v1.data(), nullptr);
-  EXPECT_TRUE(v1.empty());
+  EXPECT_FALSE(v1.empty());
 }
 
 TEST(VectorTest, CopyConstructor) {
@@ -34,10 +34,10 @@ TEST(VectorTest, CopyConstructor) {
 
   sp::vector<int> v21(10);
   sp::vector<int> v22(v21);
-  EXPECT_EQ(v22.size(), 0);
+  EXPECT_EQ(v22.size(), 10);
   EXPECT_EQ(v22.capacity(), 10);
   EXPECT_NE(v22.data(), nullptr);
-  EXPECT_TRUE(v22.empty());
+  EXPECT_FALSE(v22.empty());
 }
 
 TEST(VectorTest, CopyConstructor2) {
@@ -55,10 +55,10 @@ TEST(VectorTest, CopyConstructor2) {
 
   sp::vector<int> v21(10);
   const sp::vector<int> v22(std::move(v21));
-  EXPECT_EQ(v22.size(), 0); //moved to
+  EXPECT_EQ(v22.size(), 10); //moved to
   EXPECT_EQ(v22.capacity(), 10);
   EXPECT_NE(v22.data(), nullptr);
-  EXPECT_TRUE(v22.empty());
+  EXPECT_FALSE(v22.empty());
   EXPECT_EQ(v21.size(), 0); // moved from
   EXPECT_EQ(v21.capacity(), 0);
   EXPECT_EQ(v21.data(), nullptr);
@@ -86,15 +86,15 @@ TEST(VectorTest, AssignmentOperator) {
   sp::vector<int> v22;
 
   v22 = v21;
-  EXPECT_EQ(v22.size(), 0);
+  EXPECT_EQ(v22.size(), 10);
   EXPECT_EQ(v22.capacity(), 10);
   EXPECT_NE(v22.data(), nullptr);
-  EXPECT_TRUE(v22.empty());
+  EXPECT_FALSE(v22.empty());
 
-  EXPECT_EQ(v21.size(), 0);
+  EXPECT_EQ(v21.size(), 10);
   EXPECT_EQ(v21.capacity(), 10);
   EXPECT_NE(v21.data(), nullptr);
-  EXPECT_TRUE(v21.empty());
+  EXPECT_FALSE(v21.empty());
 
   sp::vector<int> v23;
   v23 = std::move(v22);
@@ -103,10 +103,10 @@ TEST(VectorTest, AssignmentOperator) {
   EXPECT_EQ(v22.data(), nullptr);
   EXPECT_TRUE(v22.empty());
 
-  EXPECT_EQ(v23.size(), 0);
+  EXPECT_EQ(v23.size(), 10);
   EXPECT_EQ(v23.capacity(), 10);
   EXPECT_NE(v23.data(), nullptr);
-  EXPECT_TRUE(v23.empty());
+  EXPECT_FALSE(v23.empty());
 }
 
 TEST(vector_test, ApiTests) {
