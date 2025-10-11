@@ -189,16 +189,32 @@ namespace sp
     {
       p_ncap = p_ncap == 0 ? 2 : p_ncap;
       T *new_buff = alloc(p_ncap);
-      for (size_t i = 0; i < size_; ++i) 
+
+      size_t constructed = 0;
+      try 
       {
-        if constexpr (std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>) 
+        for (size_t i = 0; i < size_; ++i) 
         {
-          std::construct_at(new_buff + i, std::move(*slot(i)));
-        } 
-        else 
-        {
-          std::construct_at(new_buff + i, *slot(i));
+            if constexpr (std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>) 
+            {
+            std::construct_at(new_buff + i, std::move(*slot(i)));
+            } 
+            else 
+            {
+            std::construct_at(new_buff + i, *slot(i));
+            }
+            constructed += 1;
         }
+      } 
+      catch (...) 
+      {
+        // Rollback constructed elements
+        for (size_t j = 0; j < constructed; ++j) 
+        {
+          std::destroy_at(reinterpret_cast<T*>(new_buff + j));
+        }
+        free(new_buff);
+        throw;  // Re-throw the exception
       }
 
       clear();
