@@ -71,6 +71,7 @@ TEST_F(ObjectPoolBenchmark, PoolVsHeapAllocation) {
         // Create and use objects from heap
         for(size_t i = 0; i < NUM_OBJECTS; ++i) {
             auto* obj = new TestObject(i, "test_" + std::to_string(i));
+            ASSERT_NE(obj, nullptr);
             obj->doWork();
             delete obj;
         }
