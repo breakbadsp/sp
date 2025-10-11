@@ -94,6 +94,18 @@ namespace sp
       ++size_;
     }
 
+    template<typename... Args>
+    T& emplace_back(Args&&... args) 
+    {
+      if (size_ >= capacity_) 
+      {
+        reallocate(capacity_ * 2);
+      }
+      auto* ptr = std::construct_at(slot(size_), std::forward<Args>(args)...);
+      ++size_;
+      return *ptr;
+    }
+
     T pop_back() 
     {
       assert(size_ > 0);
@@ -103,10 +115,23 @@ namespace sp
       return ele;
     }
 
+    // Add insert operations
+    // Add erase operations
 
-    void reserve(size_t p_cap) {
-      buffer_ = alloc(p_cap);
-      capacity_ = p_cap;
+    void shrink_to_fit()
+    {
+      if (size_ < capacity_) 
+      {
+        reallocate(size_);
+      }
+    }
+
+    void reserve(size_t p_cap)
+    {
+      if (p_cap > capacity_)
+      {
+        reallocate(p_cap);
+      }
     }
 
     void resize(size_t p_nsize) 
@@ -151,16 +176,12 @@ namespace sp
       size_ = p_nsize;
     }
 
-
     const T &back() const { return *last(); }
     T &back() { return *last(); }
-
     size_t size() const noexcept { return size_; }
     size_t capacity() const noexcept { return capacity_; }
-
     T *data() { return reinterpret_cast<T *>(buffer_); }
-    const T *data() const { return reinterpret_cast<T *>(buffer_); }
-
+    const T *data() const { return reinterpret_cast<const T *>(buffer_); }
     bool empty() const noexcept { return size() == 0; }
 
   private:
