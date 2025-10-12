@@ -49,6 +49,10 @@ namespace sp
       p_rhs.size_ = 0;
     }
 
+    //we do not need move assignment operator as we have copy and swap idiom implemented
+    //when a rvalue is assigned to lvalue then p_rhs will be move constructed.
+    //that is very neat and clean implementation
+    //Below function takes care of both copy and move assignment
     vector &operator=(vector p_rhs) noexcept
     {
       swap(p_rhs);
@@ -71,12 +75,19 @@ namespace sp
       swap(size_, p_other.size_);
     }
 
-    const T &operator[](size_t p_idx) const { return *slot(p_idx); }
-    T &operator[](size_t p_idx) { return *slot(p_idx); }
+    const T &operator[](size_t p_idx) const 
+    { 
+        return *slot(p_idx); 
+    }
+    
+    T &operator[](size_t p_idx) 
+    { 
+        return *slot(p_idx); 
+    }
 
     void push_back(const T &p_rhs) 
     {
-      if (size_ == capacity_) 
+      if (size_ >= capacity_) 
       {
         reallocate(capacity_ * 2);
       }
@@ -195,7 +206,7 @@ namespace sp
       {
         for (size_t i = 0; i < size_; ++i) 
         {
-            if constexpr (std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>) 
+            if constexpr (std::is_nothrow_move_constructible_v<T>) 
             {
             std::construct_at(new_buff + i, std::move(*slot(i)));
             } 
