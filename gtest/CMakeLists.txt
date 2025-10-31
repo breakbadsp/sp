@@ -45,7 +45,7 @@ set(SANITIZE_FLAGS
 )
 
 target_compile_options(
-  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 ${SANITIZE_FLAGS}
+  sp_tests PUBLIC -Wall -Wextra -Werror -g3 -O3 ${SANITIZE_FLAGS} 
 )
 
 target_link_options(

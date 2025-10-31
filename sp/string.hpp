@@ -14,7 +14,6 @@ public:
 
     explicit string(decltype(nullptr)) = delete; //this should be a compiler error, real world pain fixed
     explicit string(const char *p_c_style) { Init(p_c_style); }
-
     explicit string(char p_null_term_array[]) { Init(p_null_term_array); }
 
     string(const string& p_other) { Init(p_other.buffer_); }
