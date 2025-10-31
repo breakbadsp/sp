@@ -15,29 +15,35 @@ CXXFLAGS += -Wall \
 
 #Instrumentation-Options flags
 # Pending -fsanitize=shadow-call-stack, -fstack-check
-CXXFLAGS += -fsanitize=address \
-			-fsanitize=undefined \
-			-fsanitize=leak \
-			-fsanitize-address-use-after-scope \
-			-fsanitize-recover=all \
-			-fno-omit-frame-pointer \
-			-fstack-protector-all \
-			-Wno-float-equal \
-
-LDDFLAGS = 	-fsanitize=address \
-		   	-fsanitize=undefined \
-		   	-fsanitize=leak \
-		   	-fsanitize-address-use-after-scope \
-		   	-fsanitize-recover=all \
-			-fno-omit-frame-pointer \
+#CXXFLAGS += -fsanitize=address \
+#			-fsanitize=undefined \
+#			-fsanitize=leak \
+#			-fsanitize-address-use-after-scope \
+#			-fsanitize-recover=all \
+#			-fno-omit-frame-pointer \
+#			-fstack-protector-all \
+#			-Wno-float-equal \
+#
+#LDDFLAGS = 	-fsanitize=address \
+#		   	-fsanitize=undefined \
+#		   	-fsanitize=leak \
+#		   	-fsanitize-address-use-after-scope \
+#		   	-fsanitize-recover=all \
+#			-fno-omit-frame-pointer \
 		   
 
 TARGET = experiment
+TARGET2 = CacheLatencyBenchmark
 OUTDIR = ../output
 
 .PHONY: default all clean
 
+.PHONY: cache
+
 default:	$(TARGET)
+
+# Convenience target to build only the CacheLatencyBenchmark
+cache:	$(TARGET2)
 all:	default
 
 OBJECTS = $(patsubst %.cpp, $(OUTDIR)/%.o, $(wildcard *.cpp))
@@ -51,6 +57,9 @@ $(OUTDIR)/%.o:	%.cpp $(HEADERS)
 
 $(TARGET):	$(OBJECTS)
 	$(CXX) $(LDDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
+
+$(TARGET2):	CpuCacheLatencyMeasure.cpp
+	$(CXX) $(LDDFLAGS) $< $(LIBS) -o $(OUTDIR)/$@
 
 clean:
 	rm $(OBJECTS)
