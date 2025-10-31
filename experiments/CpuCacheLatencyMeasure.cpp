@@ -117,11 +117,6 @@ int main() {
               << "sudo cpupower frequency-set -g performance\n\n";
               
     PinThreadToCore(0);
-    
-    // Warm up the CPU
-    volatile int warmup = 0;
-    for(int i = 0; i < 1000000; i++) warmup++;
-    
     BenchMarkL1CacheLatency();
     BenchMarkL2CacheLatency();
     BenchMarkL3CacheLatency();

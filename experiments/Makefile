@@ -59,7 +59,7 @@ $(TARGET):	$(OBJECTS)
 	$(CXX) $(LDDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTDIR)/$@
 
 $(TARGET2):	CpuCacheLatencyMeasure.cpp
-	$(CXX) $(LDDFLAGS) $< $(LIBS) -o $(OUTDIR)/$@
+	$(CXX) $(CXXFLAGS) $(LDDFLAGS) $< $(LIBS) -o $(OUTDIR)/$@
 
 clean:
 	rm $(OBJECTS)
