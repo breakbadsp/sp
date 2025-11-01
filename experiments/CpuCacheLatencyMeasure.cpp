@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <pthread.h>
 
+#include "CpuCacheSizeInfo.hpp"
+
 //TODO:: How to get the cache sizes programmatically in C++ in a portable way?
 
 
@@ -15,12 +17,12 @@
 // L1i       32K     192K    8 Instruction     1    64        1             64
 // L2       256K     1.5M    4 Unified         2  1024        1             64
 // L3         9M       9M   12 Unified         3 12288        1             64
-
-[[maybe_unused]] constexpr std::size_t KB = 1024;
-[[maybe_unused]] constexpr std::size_t MB = 1024 * KB;
-[[maybe_unused]] constexpr auto L1_CACHE_SIZE = (32 * KB);     // 32KB per core
-[[maybe_unused]] constexpr auto L2_CACHE_SIZE = (256 * KB);      // 256KB per core (1.5MB/6)
-[[maybe_unused]] constexpr auto L3_CACHE_SIZE = (9 * MB);           // 9MB shared
+const auto cache_i = CacheDetector::getCacheInfo();
+[[maybe_unused]] const std::size_t KB = 1024;
+[[maybe_unused]] const std::size_t MB = 1024 * KB;
+[[maybe_unused]] const auto L1_CACHE_SIZE = cache_i.l1d_size; // (32 * KB);     // 32KB per core
+[[maybe_unused]] const auto L2_CACHE_SIZE = cache_i.l2_size; // (256 * KB);      // 256KB per core (1.5MB/6)
+[[maybe_unused]] const auto L3_CACHE_SIZE = cache_i.l3_size; // (9 * MB);           // 9MB shared
 
 #ifdef __cpp_lib_hardware_interference_size
     using std::hardware_constructive_interference_size;
@@ -115,6 +117,8 @@ int main() {
     // Disable frequency scaling if possible
     std::cout << "Note: For accurate results, run with:\n"
               << "sudo cpupower frequency-set -g performance\n\n";
+
+    cache_i.print();
               
     PinThreadToCore(0);
     BenchMarkL1CacheLatency();
