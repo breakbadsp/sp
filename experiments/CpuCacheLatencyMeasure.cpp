@@ -23,6 +23,7 @@ const auto cache_i = CacheDetector::getCacheInfo();
 [[maybe_unused]] const auto L1_CACHE_SIZE = cache_i.l1d_size; // (32 * KB);     // 32KB per core
 [[maybe_unused]] const auto L2_CACHE_SIZE = cache_i.l2_size; // (256 * KB);      // 256KB per core (1.5MB/6)
 [[maybe_unused]] const auto L3_CACHE_SIZE = cache_i.l3_size; // (9 * MB);           // 9MB shared
+[[maybe_unused]] const auto CACHE_LINE_SIZE = cache_i.cache_line_size; // 64 bytes
 
 #ifdef __cpp_lib_hardware_interference_size
     using std::hardware_constructive_interference_size;
@@ -72,15 +73,13 @@ void MeasureCacheLatency(const size_t cache_size, const char* name)
     const size_t iterations = 10'000'000;
     curr = 0;
     
-    auto t0 = std::chrono::steady_clock::now();
-    
+    const auto t0 = std::chrono::steady_clock::now();
     for (size_t i = 0; i < iterations; ++i) {
         curr = entries[curr].next;
     }
-    
-    auto t1 = std::chrono::steady_clock::now();
+    const auto t1 = std::chrono::steady_clock::now();
+
     double ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
-    
     std::cout << name << " average read latency: " << (ns / iterations) << " ns\n\n";
 }
 
